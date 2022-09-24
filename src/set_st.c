@@ -1,0 +1,127 @@
+#include "../include/set_st.h"
+
+unsigned char msg[5] = {0};
+
+int (*set_state[])(unsigned char c) = {
+    set_entry_state, set_flag_state, set_a_state, set_c_state, set_bcc_state, set_stop_state};
+
+int set_entry_state(unsigned char c)
+{
+    enum set_ret_codes ret = OTHER_RCV;
+    switch (c)
+    {
+    case FLAG:
+        ret = FLAG_RCV;
+        msg[0] = c;
+        break;
+    default:
+        break;
+    }
+    return ret;
+}
+
+int set_flag_state(unsigned char c)
+{
+    enum set_ret_codes ret = OTHER_RCV;
+    switch (c)
+    {
+    case A_RCV:
+        ret = A_RCV;
+        msg[1] = c;
+        break;
+    case FLAG_RCV:
+        ret = FLAG_RCV;
+        break;
+    default:
+        break;
+    }
+    return ret;
+}
+
+int set_a_state(unsigned char c)
+{
+    enum set_ret_codes ret = OTHER_RCV;
+    switch (c)
+    {
+    case C_RCV:
+        ret = C_RCV;
+        msg[2] = c;
+        break;
+    case FLAG_RCV:
+        ret = FLAG_RCV;
+        break;
+    default:
+        break;
+    }
+    return ret;
+}
+
+int set_c_state(unsigned char c)
+{
+    enum set_ret_codes ret = OTHER_RCV;
+    switch (c)
+    {
+    case FLAG_RCV:
+        ret = FLAG_RCV;
+        break;
+    default:
+        break;
+    }
+
+    if (c == BCC(msg[1], msg[2]))
+    {
+        ret = BCC_OK;
+        msg[3] = c;
+    }
+
+    return ret;
+}
+
+int set_bcc_state(unsigned char c)
+{
+    enum set_ret_codes ret = OTHER_RCV;
+    switch (c)
+    {
+    case FLAG_RCV:
+        ret = FLAG_RCV;
+        msg[4] = c;
+        break;
+    default:
+        break;
+    }
+    return ret;
+}
+
+int set_stop_state(unsigned char c)
+{
+    return OTHER_RCV;
+}
+
+enum set_state_codes set_lookup_transitions(int cur_state, int rc)
+{
+    SET_ST_TRANS state_transitions[] = {
+        {start, FLAG_RCV, flag_rcv},
+        {start, OTHER_RCV, start},
+        {flag_rcv, FLAG_RCV, flag_rcv},
+        {flag_rcv, A_RCV, a_rcv},
+        {flag_rcv, OTHER_RCV, start},
+        {a_rcv, FLAG_RCV, flag_rcv},
+        {a_rcv, OTHER_RCV, start},
+        {a_rcv, C_RCV, c_rcv},
+        {c_rcv, FLAG_RCV, flag_rcv},
+        {c_rcv, OTHER_RCV, start},
+        {c_rcv, BCC_OK, bcc_ok},
+        {bcc_ok, FLAG_RCV, stop},
+        {bcc_ok, OTHER_RCV, start},
+        {stop, OTHER_RCV, stop}};
+
+    for (int i = 0; i < 13; i++)
+    {
+        if (state_transitions[i].src_state == cur_state && state_transitions[i].ret_code == rc)
+        {
+            return state_transitions[i].dst_state;
+        }
+    }
+    return cur_state;
+}
+
