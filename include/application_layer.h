@@ -13,6 +13,7 @@
 #include <termios.h>
 #include <unistd.h>
 #include "frame_defines.h"
+#include "set_st.h"
 
 // Application layer main function.
 // Arguments:
@@ -34,6 +35,8 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
 #define TRUE 1
 
 #define BUF_SIZE 256
+
+static int (*set_state_fun)(unsigned char c);
 
 
 #endif // _APPLICATION_LAYER_H_
