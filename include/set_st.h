@@ -45,16 +45,9 @@ enum set_state_codes set_lookup_transitions(int cur_state, int rc);
 
 static enum set_state_codes set_cur_state = ENTRY_SET_STATE;
 
-/**
- * @brief Returns Menu State
- * @return Current Menu State
- */
+
 enum set_state_codes get_set_state();
 
-/**
- * @brief Set the Menu State
- * @param st New menu state
- */
 void set_set_state(enum set_state_codes st);
 
 

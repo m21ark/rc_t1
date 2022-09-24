@@ -25,11 +25,11 @@ int set_flag_state(unsigned char c)
     enum set_ret_codes ret = OTHER_RCV;
     switch (c)
     {
-    case A_RCV:
+    case ADDR_ER: // A UA VAI SER DIFERENTE
         ret = A_RCV;
         msg[1] = c;
         break;
-    case FLAG_RCV:
+    case FLAG:
         ret = FLAG_RCV;
         break;
     default:
@@ -43,11 +43,11 @@ int set_a_state(unsigned char c)
     enum set_ret_codes ret = OTHER_RCV;
     switch (c)
     {
-    case C_RCV:
+    case SET: // A UA VAI SER DIFERENTE
         ret = C_RCV;
         msg[2] = c;
         break;
-    case FLAG_RCV:
+    case FLAG:
         ret = FLAG_RCV;
         break;
     default:
@@ -61,7 +61,7 @@ int set_c_state(unsigned char c)
     enum set_ret_codes ret = OTHER_RCV;
     switch (c)
     {
-    case FLAG_RCV:
+    case FLAG:
         ret = FLAG_RCV;
         break;
     default:
@@ -82,7 +82,7 @@ int set_bcc_state(unsigned char c)
     enum set_ret_codes ret = OTHER_RCV;
     switch (c)
     {
-    case FLAG_RCV:
+    case FLAG:
         ret = FLAG_RCV;
         msg[4] = c;
         break;
@@ -124,4 +124,15 @@ enum set_state_codes set_lookup_transitions(int cur_state, int rc)
     }
     return cur_state;
 }
+
+
+
+enum set_state_codes get_set_state() {
+    return set_cur_state;
+}
+
+void set_set_state(enum set_state_codes st) {
+    set_cur_state = st;
+}
+
 

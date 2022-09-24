@@ -7,6 +7,8 @@
 #define SET 0x03
 #define UA 0x07
 
+#define ADDR_ER 0x03
+
 #define BCC(addr, ctrl) (addr^ctrl)
 
 #endif
