@@ -83,14 +83,42 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
                 break;
             }
         }
+
+        unsigned char cmd[5] = {FLAG, ADDR_ER, UA, BCC(ADDR_ER, UA), FLAG};
+
+        int j = write(fd, cmd, 5);
+        printf("%d bytes written\n", j);
+        
     }
 
     if (strcmp(role, "tx") == 0)
     {
-        unsigned char buf[5] = {FLAG, ADDR_ER, SET, BCC(ADDR_ER, SET), FLAG};
+        unsigned char cmd[5] = {FLAG, ADDR_ER, SET, BCC(ADDR_ER, SET), FLAG};
 
-        int bytes = write(fd, buf, 5);
-        printf("%d bytes written\n", bytes);
+        write(fd, cmd, 5);
+        printf("bytes written\n");
+
+        unsigned int STOP = FALSE;
+        unsigned char buf = 0;
+        unsigned char bytes;
+        while (bytes = read(fd, &buf, 1)) // SEE THIS LATTER 
+        {
+            
+            enum set_state_codes st = get_set_state();
+            set_state_fun = set_state[st];
+            enum set_ret_codes rt = set_state_fun(buf);
+
+            printf("rt:%d\n", rt);
+            set_set_state(set_lookup_transitions(st, rt));
+
+            printf("state:%d:%d\n", get_set_state(), buf);
+            
+            if (get_set_state() == EXIT_SET_STATE)
+            {
+                printf("UA RECIEVED");
+                break;
+            }
+        }
     }
 
     sleep(1);

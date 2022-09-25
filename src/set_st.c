@@ -47,6 +47,10 @@ int set_a_state(unsigned char c)
         ret = C_RCV;
         msg[2] = c;
         break;
+    case UA:
+        ret = C_RCV;
+        msg[2] = c;
+        break;
     case FLAG:
         ret = FLAG_RCV;
         break;
