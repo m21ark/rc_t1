@@ -69,6 +69,7 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
         while (1) // SEE THIS LATTER 
         {
             bytes = read(fd, &buf, 1);
+            if (bytes == 0) continue; // TODO :: Maybe put a Timerout to stop the app
             enum set_state_codes st = get_set_state();
             set_state_fun = set_state[st];
             enum set_ret_codes rt = set_state_fun(buf);
@@ -81,13 +82,11 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
             if (get_set_state() == EXIT_SET_STATE)
             {
                 printf("SET RECIEVED");
-                break;
+                unsigned char cmd[5] = {FLAG, ADDR_ER, UA, BCC(ADDR_ER, UA), FLAG};
+                sendAndWaitMessage(fd, cmd, 5);
+                set_set_state(ENTRY_SET_STATE);
             }
         }
-
-       unsigned char cmd[5] = {FLAG, ADDR_ER, UA, BCC(ADDR_ER, UA), FLAG};
-       int j = write(fd, cmd, 5);
-       printf("%d bytes written\n", j);
        
     }
 

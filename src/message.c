@@ -22,10 +22,8 @@ int sendAndWaitMessage(int fd, unsigned char *msg, int messageSize)
         alarm_flag = 0;
 
         ret = write(fd, msg, messageSize);
-        printf("bytes written, %d\n", ret);
-        printf("dkkdkd");
+        printf("bytes written\n");
         alarm(3);
-        printf("dkkdkd");
 
 
         unsigned char buf = 0;
