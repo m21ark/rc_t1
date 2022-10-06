@@ -7,14 +7,10 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
 {
 
     LinkLayerRole LRole = (!strcmp(role, "tx")) ? LlTx: LlRx;
-
-    printf("%d", LRole);
-
     LinkLayer connectionParameters = {"", LRole, baudRate, nTries, timeout};
 
     strcpy(connectionParameters.serialPort, serialPort);
     
-
     llopen(connectionParameters);
 
 

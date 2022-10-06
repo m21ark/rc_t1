@@ -8,7 +8,10 @@
 #include <unistd.h>
 
 int sendAndWaitMessage(int fd, unsigned char * msg, int messageSize);
+
 void alarm_handler();
+
+int sendInformationFrame();
 
 static int (*set_state_fun)(unsigned char c);
 

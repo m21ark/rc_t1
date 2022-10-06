@@ -58,7 +58,32 @@ int sendAndWaitMessage(int fd, unsigned char *msg, int messageSize)
 
     if (get_set_state() != EXIT_SET_STATE) {
         printf("FAILED TO GET RESPONSE!");
+    }    
+}
+
+int sendInformationFrame(int fd, unsigned char * data, int dataSize, int packet) { // maybe make a struct
+    
+    
+    unsigned char cmd[dataSize + 6]; // acho que depende do compilador VER
+
+
+    cmd[0] = FLAG;
+    cmd[1] = ADDR_ER;
+    cmd[2] = CTRL_S(packet);
+    cmd[3] = BCC(cmd[1], cmd[2]);
+
+    memcpy(cmd + 4, data, dataSize);
+    // TODO: make a function and ask teacher if we can use other types of controlling 
+    unsigned char bcc2 = data[0];
+    for (int i = 0; i < dataSize; i++) {  
+        if (i > 0) bcc2 ^= data[i];
     }
 
+    cmd[dataSize + 4] = bcc2;
+    cmd[dataSize + 5] = FLAG;
+
     
+
+
 }
+

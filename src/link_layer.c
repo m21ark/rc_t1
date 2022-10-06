@@ -38,7 +38,7 @@ int llopen(LinkLayer connectionParameters)
     // Clear struct for new port settings
     memset(&newtio, 0, sizeof(newtio));
 
-    newtio.c_cflag = connectionParameters.baudRate | CS8 | CLOCAL | CREAD;
+    newtio.c_cflag = BAUDRATE | CS8 | CLOCAL | CREAD;
     newtio.c_iflag = IGNPAR;
     newtio.c_oflag = 0;
 
@@ -73,6 +73,9 @@ int llopen(LinkLayer connectionParameters)
         unsigned int STOP = FALSE;
         unsigned char buf = 0;
         unsigned char bytes;
+
+        (void)signal(SIGALRM, alarm_handler); // TODO : NOT HERE
+
         while (1) // SEE THIS LATTER
         {
             bytes = read(fd, &buf, 1);
@@ -91,8 +94,10 @@ int llopen(LinkLayer connectionParameters)
             {
                 printf("SET RECIEVED");
                 unsigned char cmd[5] = {FLAG, ADDR_ER, UA, BCC(ADDR_ER, UA), FLAG};
-                sendAndWaitMessage(fd, cmd, 5);
-                set_set_state(ENTRY_SET_STATE);
+                sendAndWaitMessage(fd, cmd, 5); //TODO: talvez esteja mal uma vez que eu n tenho de enviar mais que uma aqui ... devia ser só enviar uma
+                // set_set_state(ENTRY_SET_STATE);
+
+                break; // TODO:: FIND HOW TO FIX THE DESIGN PROBLEM, talvez ao usar o estado num estado mais a frente
             }
         }
     }
@@ -104,7 +109,7 @@ int llopen(LinkLayer connectionParameters)
         sendAndWaitMessage(fd, cmd, 5);
     }
 
-    sleep(1);
+    sleep(1); // RETIRAR MAIS TARDE
 
     // Restore the old port settings
     if (tcsetattr(fd, TCSANOW, &oldtio) == -1)
@@ -125,6 +130,19 @@ int llwrite(const unsigned char *buf, int bufSize)
 {
     // TODO
 
+    int packet = 0;
+
+    int ret;
+    int numTries = 0;
+
+    do
+    {
+        numTries++;
+        if (sendInformationFrame() == 0) {
+            packet = (packet + 1) % 2;
+        }
+    } while (numTries < 3);
+    
     return 0;
 }
 
