@@ -11,6 +11,7 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
     // Open serial port device for reading and writing, and not as controlling tty
     // because we don't want to get killed if linenoise sends CTRL-C.
     int fd = open(serialPort, O_RDWR | O_NOCTTY);
+    
 
     if (fd < 0)
     {
@@ -37,8 +38,8 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
 
     // Set input mode (non-canonical, no echo,...)
     newtio.c_lflag = 0;
-    newtio.c_cc[VTIME] = 0; // Inter-character timer unused
-    newtio.c_cc[VMIN] = 5;  // Blocking read until 5 chars received
+    newtio.c_cc[VTIME] = 1; // Inter-character timer unused
+    newtio.c_cc[VMIN] = 0;  
 
     // VTIME e VMIN should be changed in order to protect with a
     // timeout the reception of the following character(s)
@@ -65,9 +66,9 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
         unsigned int STOP = FALSE;
         unsigned char buf = 0;
         unsigned char bytes;
-        while (bytes = read(fd, &buf, 1)) // SEE THIS LATTER 
+        while (1) // SEE THIS LATTER 
         {
-            
+            bytes = read(fd, &buf, 1);
             enum set_state_codes st = get_set_state();
             set_state_fun = set_state[st];
             enum set_ret_codes rt = set_state_fun(buf);
@@ -84,41 +85,18 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
             }
         }
 
-        unsigned char cmd[5] = {FLAG, ADDR_ER, UA, BCC(ADDR_ER, UA), FLAG};
-
-        int j = write(fd, cmd, 5);
-        printf("%d bytes written\n", j);
-        
+       unsigned char cmd[5] = {FLAG, ADDR_ER, UA, BCC(ADDR_ER, UA), FLAG};
+       int j = write(fd, cmd, 5);
+       printf("%d bytes written\n", j);
+       
     }
 
     if (strcmp(role, "tx") == 0)
     {
         unsigned char cmd[5] = {FLAG, ADDR_ER, SET, BCC(ADDR_ER, SET), FLAG};
 
-        write(fd, cmd, 5);
-        printf("bytes written\n");
-
-        unsigned int STOP = FALSE;
-        unsigned char buf = 0;
-        unsigned char bytes;
-        while (bytes = read(fd, &buf, 1)) // SEE THIS LATTER 
-        {
-            
-            enum set_state_codes st = get_set_state();
-            set_state_fun = set_state[st];
-            enum set_ret_codes rt = set_state_fun(buf);
-
-            printf("rt:%d\n", rt);
-            set_set_state(set_lookup_transitions(st, rt));
-
-            printf("state:%d:%d\n", get_set_state(), buf);
-            
-            if (get_set_state() == EXIT_SET_STATE)
-            {
-                printf("UA RECIEVED");
-                break;
-            }
-        }
+        sendAndWaitMessage(fd, cmd, 5);
+        
     }
 
     sleep(1);

@@ -14,6 +14,7 @@
 #include <unistd.h>
 #include "frame_defines.h"
 #include "set_st.h"
+#include "message.h"
 
 // Application layer main function.
 // Arguments:

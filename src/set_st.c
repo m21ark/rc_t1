@@ -72,7 +72,8 @@ int set_c_state(unsigned char c)
         break;
     }
 
-    if (c == BCC(msg[1], msg[2]))
+    unsigned char validation = BCC(msg[1], msg[2]);
+    if (memcmp(&c, &validation, 1) == 0)
     {
         ret = BCC_OK;
         msg[3] = c;
@@ -119,7 +120,7 @@ enum set_state_codes set_lookup_transitions(int cur_state, int rc)
         {bcc_ok, OTHER_RCV, start},
         {stop, OTHER_RCV, stop}};
 
-    for (int i = 0; i < 13; i++)
+    for (int i = 0; i < 14; i++)
     {
         if (state_transitions[i].src_state == cur_state && state_transitions[i].ret_code == rc)
         {

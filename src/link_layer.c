@@ -11,6 +11,7 @@
 int llopen(LinkLayer connectionParameters)
 {
     // TODO
+    signal(SIGALRM, alarm_handler);
 
     return 1;
 }
