@@ -15,6 +15,7 @@
 #include "frame_defines.h"
 #include "set_st.h"
 #include "message.h"
+#include "link_layer.h"
 
 // Application layer main function.
 // Arguments:
@@ -29,15 +30,6 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
 
 // Baudrate settings are defined in <asm/termbits.h>, which is
 // included by <termios.h>
-#define BAUDRATE B38400
-#define _POSIX_SOURCE 1 // POSIX compliant source
-
-#define FALSE 0
-#define TRUE 1
-
-#define BUF_SIZE 256
-
-static int (*set_state_fun)(unsigned char c);
 
 
 #endif // _APPLICATION_LAYER_H_
