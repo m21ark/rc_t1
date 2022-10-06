@@ -13,4 +13,9 @@
 
 #define BCC(addr, ctrl) (addr^ctrl)
 
+
+#define ESC 0x7d
+#define XOR_FLAG 0x5e
+#define XOR_ESC 0x5d
+
 #endif

@@ -82,6 +82,12 @@ int sendInformationFrame(int fd, unsigned char * data, int dataSize, int packet)
     cmd[dataSize + 4] = bcc2;
     cmd[dataSize + 5] = FLAG;
 
+    int n_mis_flags = countProblematicFlags(cmd, dataSize + 6);
+
+    unsigned char stuffed_cmd[dataSize + 6 + n_mis_flags];
+
+    stuffData(cmd, dataSize + 6, stuffed_cmd, dataSize + 6 + n_mis_flags);
+
     
 
 

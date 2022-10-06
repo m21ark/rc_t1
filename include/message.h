@@ -6,6 +6,7 @@
 #include <signal.h>
 #include <stdio.h>
 #include <unistd.h>
+#include "utils.h"
 
 int sendAndWaitMessage(int fd, unsigned char * msg, int messageSize);
 
