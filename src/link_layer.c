@@ -17,7 +17,7 @@ int llopen(LinkLayer connectionParameters)
 
     // Open serial port device for reading and writing, and not as controlling tty
     // because we don't want to get killed if linenoise sends CTRL-C.
-    int fd = open(connectionParameters.serialPort, O_RDWR | O_NOCTTY);
+    fd = open(connectionParameters.serialPort, O_RDWR | O_NOCTTY);
 
     if (fd < 0)
     {
@@ -138,7 +138,7 @@ int llwrite(const unsigned char *buf, int bufSize)
     do
     {
         numTries++;
-        if (sendInformationFrame() == 0) {
+        if (sendInformationFrame(fd, buf, bufSize, packet) == 0) {
             packet = (packet + 1) % 2;
         }
     } while (numTries < 3);

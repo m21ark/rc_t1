@@ -88,8 +88,15 @@ int sendInformationFrame(int fd, unsigned char * data, int dataSize, int packet)
 
     stuffData(cmd, dataSize + 6, stuffed_cmd, dataSize + 6 + n_mis_flags);
 
-    
 
+    //TESTE
+    printf("\nSTART\n");
+    printf("%d",n_mis_flags );
+    for (int i = 0; i < dataSize + 6 + n_mis_flags; i++)
+    {
+        printf("%x\n", stuffed_cmd[i]);
+    }
+    
 
 }
 

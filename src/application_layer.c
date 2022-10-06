@@ -13,7 +13,8 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
     
     llopen(connectionParameters);
 
-
+    unsigned char data[2]  = {FLAG, ESC};
+    llwrite(data, 2);
     
     return 0;
 }

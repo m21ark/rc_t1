@@ -12,7 +12,7 @@ int sendAndWaitMessage(int fd, unsigned char * msg, int messageSize);
 
 void alarm_handler();
 
-int sendInformationFrame();
+int sendInformationFrame(int fd, unsigned char * data, int dataSize, int packet);
 
 static int (*set_state_fun)(unsigned char c);
 
