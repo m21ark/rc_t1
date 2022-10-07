@@ -23,7 +23,6 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
     if (connectionParameters.role == LlRx) 
     {
         llread(&packet);
-
     }
 
 

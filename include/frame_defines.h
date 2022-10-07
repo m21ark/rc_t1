@@ -8,6 +8,7 @@
 #define UA 0x07
 #define CTRL_S(s) ((s) << 6) // VER SE ESTÁ CORRETO 
 #define RR(n) (((n) << 7) | 0x05) 
+#define REJ(n) (((n) << 7) | 0x01) 
 
 #define ADDR_ER 0x03
 

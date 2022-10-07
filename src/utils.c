@@ -55,9 +55,14 @@ int unstuffData(unsigned char *data, int dataSize, unsigned char *stData)
     int j = 0;
     for (int i = 0; i < dataSize; i++, j++)
     {
-        if (data[i++] == ESC)
+        if (data[i] == ESC)
         {
+            i++;
             stData[j] = data[i] == XOR_FLAG ? FLAG : ESC; // only one of these happens
+        }
+        else
+        {
+            stData[j] = data[i];
         }
         
     }

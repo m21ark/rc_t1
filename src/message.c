@@ -104,7 +104,7 @@ int readMessageWithResponse(int fd)
     unsigned char buf = 0;
     unsigned char bytes;
 
-    unsigned int isDataFrame = 0;
+    unsigned int isDataFrame = 0; // TODO :: We can use msg and stop using this ... probl the best
 
     while (1) // SEE THIS LATTER
     {
@@ -114,6 +114,11 @@ int readMessageWithResponse(int fd)
         enum set_state_codes st = get_set_state();
         set_state_fun = set_state[st];
         enum set_ret_codes rt = set_state_fun(buf);
+
+        if (rt == BCC2_NOT_OK)
+        {
+            return -1;
+        }
 
         printf("rt:%d\n", rt);
         set_set_state(set_lookup_transitions(st, rt));
@@ -130,17 +135,7 @@ int readMessageWithResponse(int fd)
             }
             else
             {
-                int dSize = get_data_size();
-                unsigned char data[dSize];
-
-                get_data(data);
-                
-                //STEPS ... unstuff and check errors... send msg
-                //TODO
-
-                unsigned char cmd[5] = {FLAG, ADDR_ER, RR(1), BCC(ADDR_ER, RR(1)), FLAG};
-                write(fd, cmd, 5);
-                
+                return get_data_size();
             }
 
             set_set_state(ENTRY_SET_STATE);
@@ -148,12 +143,12 @@ int readMessageWithResponse(int fd)
             // break; // TODO:: FIND HOW TO FIX THE DESIGN PROBLEM, talvez ao usar o estado num estado mais a frente
             return 0;
         }
-        else if (get_set_state() == data) 
+        else if (get_set_state() == data)
         {
             // printf("INFORMATION FRAME\n");
             isDataFrame = 1;
         }
     }
 
-    return data_size;
+    return 0; 
 }

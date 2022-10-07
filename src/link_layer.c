@@ -2,7 +2,6 @@
 
 #include "link_layer.h"
 
-
 extern int (*set_state[])(unsigned char c);
 
 ////////////////////////////////////////////////
@@ -86,21 +85,22 @@ int llopen(LinkLayer connectionParameters)
 ////////////////////////////////////////////////
 int llwrite(const unsigned char *buf, int bufSize)
 {
-    static int packet = 0;
+    static int w_packet = 0;
 
     int ret;
     int numTries = 0;
 
-    //do 
+    // do
     //{ // Fiz aqui um loop que secalhar n é preciso pk o send já vai ter ... mas vamos ver, é sempre mais seguro
-    //    // Aliás neste momento sai logo no primeiro loop e parece estar correto
-    //    numTries++;
-        if (sendInformationFrame(fd, buf, bufSize, packet) == 0) {
-            packet = (packet + 1) % 2;
-            return 0; // TODO: para quê retornar o numero de bytes escritos ?
-        }
+    //     // Aliás neste momento sai logo no primeiro loop e parece estar correto
+    //     numTries++;
+    if (sendInformationFrame(fd, buf, bufSize, w_packet) == 0)
+    {
+        w_packet = (w_packet + 1) % 2;
+        return 0; // TODO: para quê retornar o numero de bytes escritos ?
+    }
     //} while (numTries < 3);
-    
+
     return -1;
 }
 
@@ -109,9 +109,21 @@ int llwrite(const unsigned char *buf, int bufSize)
 ////////////////////////////////////////////////
 int llread(unsigned char *packet)
 {
-    // static int packet = 0;
+    static int r_packet = 0;
 
-    readMessageWithResponse(fd);
+    int r = readMessageWithResponse(fd);
+    if (r > 0)
+    {
+        unsigned char cmd[5] = {FLAG, ADDR_ER, RR(r_packet), BCC(ADDR_ER, RR(r_packet)), FLAG};
+        write(fd, cmd, 5);
+        r_packet = (r_packet + 1) % 2;
+    }
+    else if (r < 0)
+    {
+        unsigned char cmd[5] = {FLAG, ADDR_ER, REJ(r_packet), BCC(ADDR_ER, REJ(r_packet)), FLAG};
+        write(fd, cmd, 5);
+        printf("\nREJ\n");
+    }
 
     return 0;
 }

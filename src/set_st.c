@@ -136,32 +136,33 @@ int set_stop_state(unsigned char c)
 int set_data_state(unsigned char c)
 {
     enum set_ret_codes ret = OTHER_RCV;
-    switch (c)
-    {
-    case FLAG:
-        ret = FLAG_RCV;
-        msg[3] = msg[4]; // BCC2
-        break;
-    default:
-        break;
-    }
 
-    msg[4] = c;
+    if (c == FLAG)
+    {
+        ret = FLAG_RCV;
+        unsigned char usData[data_size];
+        int usSize = unstuffData(sdata, data_size, usData);
+        unsigned char bcc2 = BCC2(usData, usSize - 1);
+
+        for (int i = 0; i < usSize; i++)
+        {
+            printf("\n%d\n", usData[i]);
+        }
+
+        msg[3] = usData[usSize - 1]; // BCC2
+
+        if (memcmp(&bcc2, (msg + 3), 1))
+        {   // TODO REJ
+            ret = BCC2_NOT_OK;
+        }
+    }
 
     if (ret == OTHER_RCV)
     {
         sdata[data_size++] = c;
     }
 
-    if (ret == FLAG)
-    {
-        unsigned char usData[data_size];
-        unstuffData(sdata, data_size, usData);
-        unsigned int bcc2 = BCC2(usData, data_size - 1); 
-
-        
-    }
-    
+    msg[4] = c;
 
     // save message data
 
