@@ -12,6 +12,7 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
     strcpy(connectionParameters.serialPort, serialPort);
 
     llopen(connectionParameters);
+    unsigned char packet;
 
     if (connectionParameters.role == LlTx)
     {
@@ -21,7 +22,7 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
 
     if (connectionParameters.role == LlRx) 
     {
-        
+        llread(&packet);
 
     }
 

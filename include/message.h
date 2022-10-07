@@ -14,6 +14,8 @@ void alarm_handler();
 
 int sendInformationFrame(int fd, unsigned char * data, int dataSize, int packet);
 
+int readMessageWithResponse(int fd);
+
 static int (*set_state_fun)(unsigned char c);
 
 

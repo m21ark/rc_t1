@@ -30,7 +30,7 @@ typedef struct
 #define BAUDRATE B38400
 #define _POSIX_SOURCE 1 // POSIX compliant source
 
-#define BUF_SIZE 256
+
 
 
 #include <fcntl.h>

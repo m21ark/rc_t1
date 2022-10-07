@@ -2,8 +2,6 @@
 
 #include "link_layer.h"
 
-// MISC
-#define _POSIX_SOURCE 1 // POSIX compliant source
 
 extern int (*set_state[])(unsigned char c);
 
@@ -70,33 +68,7 @@ int llopen(LinkLayer connectionParameters)
     {
 
         unsigned int STOP = FALSE;
-        unsigned char buf = 0;
-        unsigned char bytes;
-
-        while (1) // SEE THIS LATTER
-        {
-            bytes = read(fd, &buf, 1);
-            if (bytes == 0)
-                continue; // TODO :: Maybe put a Timerout to stop the app
-            enum set_state_codes st = get_set_state();
-            set_state_fun = set_state[st];
-            enum set_ret_codes rt = set_state_fun(buf);
-
-            printf("rt:%d\n", rt);
-            set_set_state(set_lookup_transitions(st, rt));
-
-            printf("state:%d:%d\n", get_set_state(), buf);
-
-            if (get_set_state() == EXIT_SET_STATE)
-            {
-                printf("SET RECIEVED");
-                unsigned char cmd[5] = {FLAG, ADDR_ER, UA, BCC(ADDR_ER, UA), FLAG};
-                sendAndWaitMessage(fd, cmd, 5); //TODO: talvez esteja mal uma vez que eu n tenho de enviar mais que uma aqui ... devia ser só enviar uma
-                set_set_state(ENTRY_SET_STATE);
-
-                //break; // TODO:: FIND HOW TO FIX THE DESIGN PROBLEM, talvez ao usar o estado num estado mais a frente
-            }
-        }
+        readMessageWithResponse(fd);
     }
 
     if (connectionParameters.role == LlTx)
@@ -137,7 +109,9 @@ int llwrite(const unsigned char *buf, int bufSize)
 ////////////////////////////////////////////////
 int llread(unsigned char *packet)
 {
-    // TODO
+    // static int packet = 0;
+
+    readMessageWithResponse(fd);
 
     return 0;
 }
