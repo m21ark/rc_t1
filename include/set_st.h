@@ -39,7 +39,8 @@ enum set_ret_codes {
   C_RCV,
   BCC_OK,
   OTHER_RCV,
-  INF_FRAME
+  INF_FRAME,
+  BCC2_NOT_OK
 };
 
 typedef struct set_transition {

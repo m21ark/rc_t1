@@ -135,7 +135,7 @@ int readMessageWithResponse(int fd)
 
                 get_data(data);
                 
-                //STEPS ... unstuff ... send msg
+                //STEPS ... unstuff and check errors... send msg
                 //TODO
 
                 unsigned char cmd[5] = {FLAG, ADDR_ER, RR(1), BCC(ADDR_ER, RR(1)), FLAG};
@@ -150,7 +150,7 @@ int readMessageWithResponse(int fd)
         }
         else if (get_set_state() == data) 
         {
-            printf("INFORMATION FRAME\n");
+            // printf("INFORMATION FRAME\n");
             isDataFrame = 1;
         }
     }

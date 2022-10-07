@@ -153,6 +153,16 @@ int set_data_state(unsigned char c)
         sdata[data_size++] = c;
     }
 
+    if (ret == FLAG)
+    {
+        unsigned char usData[data_size];
+        unstuffData(sdata, data_size, usData);
+        unsigned int bcc2 = BCC2(usData, data_size - 1); 
+
+        
+    }
+    
+
     // save message data
 
     return ret;
@@ -177,7 +187,8 @@ enum set_state_codes set_lookup_transitions(int cur_state, int rc)
         {stop, OTHER_RCV, stop},
         {c_rcv, INF_FRAME, data},
         {data, OTHER_RCV, data},
-        {data, FLAG_RCV, stop}};
+        {data, FLAG_RCV, stop},
+        {data, BCC2_NOT_OK, start}};
 
     for (int i = 0; i < 17; i++)
     {
