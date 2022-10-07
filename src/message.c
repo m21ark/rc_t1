@@ -46,7 +46,7 @@ int sendAndWaitMessage(int fd, unsigned char *msg, int messageSize)
 
             if (get_set_state() == EXIT_SET_STATE)
             {
-                printf("UA RECIEVED");
+                printf("UA/RR RECIEVED");
                 break;
             }
         }
@@ -58,7 +58,9 @@ int sendAndWaitMessage(int fd, unsigned char *msg, int messageSize)
     if (get_set_state() != EXIT_SET_STATE)
     {
         printf("FAILED TO GET RESPONSE!");
-    }
+    } // TODO: RET
+
+    set_set_state(ENTRY_SET_STATE);
 
     return ret;
 }

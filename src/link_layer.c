@@ -91,15 +91,15 @@ int llwrite(const unsigned char *buf, int bufSize)
     int ret;
     int numTries = 0;
 
-    do 
-    { // Fiz aqui um loop que secalhar n é preciso pk o send já vai ter ... mas vamos ver, é sempre mais seguro
-        // Aliás neste momento sai logo no primeiro loop e parece estar correto
-        numTries++;
+    //do 
+    //{ // Fiz aqui um loop que secalhar n é preciso pk o send já vai ter ... mas vamos ver, é sempre mais seguro
+    //    // Aliás neste momento sai logo no primeiro loop e parece estar correto
+    //    numTries++;
         if (sendInformationFrame(fd, buf, bufSize, packet) == 0) {
             packet = (packet + 1) % 2;
             return 0; // TODO: para quê retornar o numero de bytes escritos ?
         }
-    } while (numTries < 3);
+    //} while (numTries < 3);
     
     return -1;
 }
