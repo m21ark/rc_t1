@@ -21,14 +21,11 @@ int stuffData(unsigned char * data, int dataSize, unsigned char * stData, int st
     {
         if (data[i] == FLAG)
         {
-            printf("FLAG %d,%d", i, j);
             stData[j++] = ESC;
             stData[j] = XOR_FLAG;
         }
         else if (data[i] == ESC) 
         {
-            printf("ESC %d,%d", i, j);
-
             stData[j++] = ESC;
             stData[j] = XOR_ESC;
         }

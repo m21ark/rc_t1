@@ -7,7 +7,7 @@
 #define SET 0x03
 #define UA 0x07
 #define CTRL_S(s) ((s) << 6) // VER SE ESTÁ CORRETO 
-
+#define RR(n) (((n) << 7) | 0x05) 
 
 #define ADDR_ER 0x03
 

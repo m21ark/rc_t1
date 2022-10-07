@@ -50,5 +50,6 @@ enum set_state_codes get_set_state();
 
 void set_set_state(enum set_state_codes st);
 
+unsigned char get_control();
 
 #endif

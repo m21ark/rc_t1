@@ -19,5 +19,8 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
         llwrite(data, 2);
     }
 
+
+    llclose(1);
+
     return 0;
 }

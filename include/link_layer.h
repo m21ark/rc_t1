@@ -50,6 +50,7 @@ typedef struct
 
 
 static int (*set_state_fun)(unsigned char c);
+struct termios oldtio;
 int fd;
 // Open a connection using the "port" parameters defined in struct linkLayer.
 // Return "1" on success or "-1" on error.

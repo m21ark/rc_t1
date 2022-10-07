@@ -41,6 +41,7 @@ int set_flag_state(unsigned char c)
 int set_a_state(unsigned char c)
 {
     enum set_ret_codes ret = OTHER_RCV;
+    static int tx_ready_to_send = 0;
     switch (c)
     {
     case SET: // A UA VAI SER DIFERENTE
@@ -48,8 +49,23 @@ int set_a_state(unsigned char c)
         msg[2] = c;
         break;
     case UA:
+        tx_ready_to_send = 1; // TX can recieve RR
         ret = C_RCV;
         msg[2] = c;
+        break;
+    case RR(1):
+        if (tx_ready_to_send) // just in case tx has not yet made pass the "handshake" fase
+        {
+            ret = C_RCV;
+            msg[2] = c;
+        }
+        break;
+    case RR(0):
+        if (tx_ready_to_send)
+        {
+            ret = C_RCV;
+            msg[2] = c;
+        }
         break;
     case FLAG:
         ret = FLAG_RCV;
@@ -130,14 +146,16 @@ enum set_state_codes set_lookup_transitions(int cur_state, int rc)
     return cur_state;
 }
 
-
-
-enum set_state_codes get_set_state() {
+enum set_state_codes get_set_state()
+{
     return set_cur_state;
 }
 
-void set_set_state(enum set_state_codes st) {
+void set_set_state(enum set_state_codes st)
+{
     set_cur_state = st;
 }
 
-
+unsigned char get_control() {
+    return msg[2];
+}

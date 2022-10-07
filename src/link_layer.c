@@ -25,7 +25,6 @@ int llopen(LinkLayer connectionParameters)
         exit(-1);
     }
 
-    struct termios oldtio;
     struct termios newtio;
 
     // Save current port settings
@@ -95,9 +94,9 @@ int llopen(LinkLayer connectionParameters)
                 printf("SET RECIEVED");
                 unsigned char cmd[5] = {FLAG, ADDR_ER, UA, BCC(ADDR_ER, UA), FLAG};
                 sendAndWaitMessage(fd, cmd, 5); //TODO: talvez esteja mal uma vez que eu n tenho de enviar mais que uma aqui ... devia ser só enviar uma
-                // set_set_state(ENTRY_SET_STATE);
+                set_set_state(ENTRY_SET_STATE);
 
-                break; // TODO:: FIND HOW TO FIX THE DESIGN PROBLEM, talvez ao usar o estado num estado mais a frente
+                //break; // TODO:: FIND HOW TO FIX THE DESIGN PROBLEM, talvez ao usar o estado num estado mais a frente
             }
         }
     }
@@ -109,17 +108,6 @@ int llopen(LinkLayer connectionParameters)
         sendAndWaitMessage(fd, cmd, 5);
     }
 
-    sleep(1); // RETIRAR MAIS TARDE
-
-    // Restore the old port settings
-    if (tcsetattr(fd, TCSANOW, &oldtio) == -1)
-    {
-        perror("tcsetattr");
-        exit(-1);
-    }
-
-    close(fd);
-
     return 1;
 }
 
@@ -130,20 +118,21 @@ int llwrite(const unsigned char *buf, int bufSize)
 {
     // TODO
 
-    int packet = 0;
+    static int packet = 0;
 
     int ret;
     int numTries = 0;
 
-    do
-    {
+    do 
+    { // Fiz aqui um loop que secalhar n é preciso pk o send já vai ter ... mas vamos ver, é sempre mais seguro
         numTries++;
         if (sendInformationFrame(fd, buf, bufSize, packet) == 0) {
             packet = (packet + 1) % 2;
+            return 0; // TODO: para quê retornar o numero de bytes escritos ?
         }
     } while (numTries < 3);
     
-    return 0;
+    return -1;
 }
 
 ////////////////////////////////////////////////
@@ -162,6 +151,14 @@ int llread(unsigned char *packet)
 int llclose(int showStatistics)
 {
     // TODO
+    // Restore the old port settings
+    if (tcsetattr(fd, TCSANOW, &oldtio) == -1)
+    {
+        perror("tcsetattr");
+        exit(-1);
+    }
+
+    close(fd);
 
     return 1;
 }

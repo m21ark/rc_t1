@@ -25,7 +25,6 @@ int sendAndWaitMessage(int fd, unsigned char *msg, int messageSize)
         printf("bytes written\n");
         alarm(3);
 
-
         unsigned char buf = 0;
         unsigned char bytes;
 
@@ -45,7 +44,7 @@ int sendAndWaitMessage(int fd, unsigned char *msg, int messageSize)
             printf("state:%d:%d\n", get_set_state(), buf);
 
             if (get_set_state() == EXIT_SET_STATE)
-            {
+            {  
                 printf("UA RECIEVED");
                 break;
             }
@@ -59,6 +58,8 @@ int sendAndWaitMessage(int fd, unsigned char *msg, int messageSize)
     if (get_set_state() != EXIT_SET_STATE) {
         printf("FAILED TO GET RESPONSE!");
     }    
+
+    return ret;
 }
 
 int sendInformationFrame(int fd, unsigned char * data, int dataSize, int packet) { // maybe make a struct
@@ -88,16 +89,12 @@ int sendInformationFrame(int fd, unsigned char * data, int dataSize, int packet)
 
     stuffData(cmd, dataSize + 6, stuffed_cmd, dataSize + 6 + n_mis_flags);
 
+    int ret = sendAndWaitMessage(fd, stuffed_cmd, dataSize + 6 + n_mis_flags);
 
-    //TESTE
-    // printf("\nSTART\n");
-    // printf("%d",n_mis_flags );
-    // for (int i = 0; i < dataSize + 6 + n_mis_flags; i++)
-    // {
-    //     printf("%x\n", stuffed_cmd[i]);
-    // }
-    
-    
+    unsigned char c = get_control();
+    if (ret > 0 && ((packet == 0 && c == RR(1)) || (packet == 1 && c == RR(0)))) {
+        return 0;
+    }
 
+    return -1;
 }
-
