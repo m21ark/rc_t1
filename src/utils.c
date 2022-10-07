@@ -37,3 +37,12 @@ int stuffData(unsigned char * data, int dataSize, unsigned char * stData, int st
     return 0;
 }
 
+unsigned char BCC2(unsigned char* data, int dataSize) {
+    unsigned char bcc = data[0];
+
+    for(int i = 1; i < dataSize; i++)
+        bcc ^= data[i];
+
+    return bcc;
+}
+

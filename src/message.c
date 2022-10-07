@@ -75,10 +75,7 @@ int sendInformationFrame(int fd, unsigned char * data, int dataSize, int packet)
 
     memcpy(cmd + 4, data, dataSize);
     // TODO: make a function and ask teacher if we can use other types of controlling 
-    unsigned char bcc2 = data[0];
-    for (int i = 0; i < dataSize; i++) {  
-        if (i > 0) bcc2 ^= data[i];
-    }
+    unsigned char bcc2 = BCC2(data, dataSize);
 
     cmd[dataSize + 4] = bcc2;
     cmd[dataSize + 5] = FLAG;

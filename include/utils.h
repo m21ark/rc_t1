@@ -8,5 +8,6 @@ int countProblematicFlags(unsigned char * data, int dataSize);
 
 int stuffData(unsigned char * data, int dataSize, unsigned char * stData, int stSize);
 
+unsigned char BCC2(unsigned char* data, int dataSize);
 
 #endif

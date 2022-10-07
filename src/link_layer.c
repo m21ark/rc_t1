@@ -73,8 +73,6 @@ int llopen(LinkLayer connectionParameters)
         unsigned char buf = 0;
         unsigned char bytes;
 
-        (void)signal(SIGALRM, alarm_handler); // TODO : NOT HERE
-
         while (1) // SEE THIS LATTER
         {
             bytes = read(fd, &buf, 1);
@@ -116,8 +114,6 @@ int llopen(LinkLayer connectionParameters)
 ////////////////////////////////////////////////
 int llwrite(const unsigned char *buf, int bufSize)
 {
-    // TODO
-
     static int packet = 0;
 
     int ret;
@@ -125,6 +121,7 @@ int llwrite(const unsigned char *buf, int bufSize)
 
     do 
     { // Fiz aqui um loop que secalhar n é preciso pk o send já vai ter ... mas vamos ver, é sempre mais seguro
+        // Aliás neste momento sai logo no primeiro loop e parece estar correto
         numTries++;
         if (sendInformationFrame(fd, buf, bufSize, packet) == 0) {
             packet = (packet + 1) % 2;

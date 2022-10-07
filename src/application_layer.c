@@ -19,6 +19,12 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
         llwrite(data, 2);
     }
 
+    if (connectionParameters.role == LlRx) 
+    {
+        
+
+    }
+
 
     llclose(1);
 
