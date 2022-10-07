@@ -65,8 +65,6 @@ int llopen(LinkLayer connectionParameters)
 
     if (connectionParameters.role == LlRx)
     {
-
-        unsigned int STOP = FALSE;
         readMessageWithResponse(fd);
     }
 
@@ -74,7 +72,9 @@ int llopen(LinkLayer connectionParameters)
     {
         unsigned char cmd[5] = {FLAG, ADDR_ER, SET, BCC(ADDR_ER, SET), FLAG};
 
-        sendAndWaitMessage(fd, cmd, 5);
+        if (sendAndWaitMessage(fd, cmd, 5) < 0) {
+            return -1;
+        }
     }
 
     return 1;
@@ -90,16 +90,24 @@ int llwrite(const unsigned char *buf, int bufSize)
     int ret;
     int numTries = 0;
 
-    // do
-    //{ // Fiz aqui um loop que secalhar n é preciso pk o send já vai ter ... mas vamos ver, é sempre mais seguro
-    //     // Aliás neste momento sai logo no primeiro loop e parece estar correto
-    //     numTries++;
-    if (sendInformationFrame(fd, buf, bufSize, w_packet) == 0)
-    {
-        w_packet = (w_packet + 1) % 2;
-        return 0; // TODO: para quê retornar o numero de bytes escritos ?
-    }
-    //} while (numTries < 3);
+    do
+    { // DISCUTIR COM O STOR ::: SE RECEBER REJECT DEVO REPETIR 3 VEZES OU ISSO JÁ CONTA COMO UMA E SO TENHO MAIS DUAS TRANS. ?
+        numTries++;
+        ret = sendInformationFrame(fd, buf, bufSize, w_packet);
+
+        printf("\n---------------------------------------%d\n", ret);
+        if (ret == 0)
+        {
+            w_packet = (w_packet + 1) % 2;
+            return 0; // TODO: para quê retornar o numero de bytes escritos ?
+        }
+        if (ret < 0)
+        {
+            // WE already waited 12 seconds
+            break;
+        }
+        
+    } while (numTries < 3);
 
     return -1;
 }
@@ -114,9 +122,9 @@ int llread(unsigned char *packet)
     int r = readMessageWithResponse(fd);
     if (r > 0)
     {
+        r_packet = (r_packet + 1) % 2;
         unsigned char cmd[5] = {FLAG, ADDR_ER, RR(r_packet), BCC(ADDR_ER, RR(r_packet)), FLAG};
         write(fd, cmd, 5);
-        r_packet = (r_packet + 1) % 2;
     }
     else if (r < 0)
     {

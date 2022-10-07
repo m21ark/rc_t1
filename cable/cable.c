@@ -162,7 +162,7 @@ int main(int argc, char *argv[])
                 static int count = 0;
                 if (cableMode == CableModeNoise)
                 {
-                    if (count % 5 == 0)
+                    if (count % 2 == 0)
                     {
                         addNoiseToBuffer(tx2rx, 0);
                     }

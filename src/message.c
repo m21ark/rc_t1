@@ -22,7 +22,7 @@ int sendAndWaitMessage(int fd, unsigned char *msg, int messageSize)
         alarm_flag = 0;
 
         ret = write(fd, msg, messageSize);
-        printf("bytes written\n");
+        printf("\nbytes written, %d\n", numTries);
         alarm(3);
 
         unsigned char buf = 0;
@@ -31,7 +31,6 @@ int sendAndWaitMessage(int fd, unsigned char *msg, int messageSize)
         while (!alarm_flag)
         {
             bytes = read(fd, &buf, 1);
-            printf("%d", buf);
             if (bytes == 0)
                 continue;
 
@@ -46,7 +45,8 @@ int sendAndWaitMessage(int fd, unsigned char *msg, int messageSize)
 
             if (get_set_state() == EXIT_SET_STATE)
             {
-                printf("UA/RR RECIEVED");
+                printf("UA/RR/REJ RECIEVED"); 
+                // IF REJ IS RECIEVED WE DONT WANT TO WAIT 3 seconds ... that's why we directly go to the final state
                 break;
             }
         }
@@ -58,7 +58,8 @@ int sendAndWaitMessage(int fd, unsigned char *msg, int messageSize)
     if (get_set_state() != EXIT_SET_STATE)
     {
         printf("FAILED TO GET RESPONSE!");
-    } // TODO: RET
+        ret = -1;
+    } 
 
     set_set_state(ENTRY_SET_STATE);
 
@@ -92,11 +93,16 @@ int sendInformationFrame(int fd, unsigned char *data, int dataSize, int packet)
 
     unsigned char c = get_control();
     if (ret > 0 && ((packet == 0 && c == RR(1)) || (packet == 1 && c == RR(0))))
-    {
+    {   
         return 0;
     }
 
-    return -1;
+    if (ret < 0)
+    {
+        return -1; // The number of restranmissions was exceeded 
+    }
+    
+    return 1; // THIS IS THE CASE IN WHICH A REJ WAS RECEIVED
 }
 
 int readMessageWithResponse(int fd)
@@ -106,7 +112,7 @@ int readMessageWithResponse(int fd)
 
     unsigned int isDataFrame = 0; // TODO :: We can use msg and stop using this ... probl the best
 
-    while (1) // SEE THIS LATTER
+    while (1) // SEE THIS LATTER :: É importante uma vez que assim fica a ler lixo quando à barulho
     {
         bytes = read(fd, &buf, 1);
         if (bytes == 0)
@@ -128,7 +134,7 @@ int readMessageWithResponse(int fd)
         if (get_set_state() == EXIT_SET_STATE)
         {
             printf("SET RECIEVED");
-            if (!isDataFrame)
+            if (!isDataFrame) // TODO :: CHANGE THIS
             {
                 unsigned char cmd[5] = {FLAG, ADDR_ER, UA, BCC(ADDR_ER, UA), FLAG};
                 write(fd, cmd, 5);

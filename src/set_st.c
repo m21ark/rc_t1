@@ -144,11 +144,6 @@ int set_data_state(unsigned char c)
         int usSize = unstuffData(sdata, data_size, usData);
         unsigned char bcc2 = BCC2(usData, usSize - 1);
 
-        for (int i = 0; i < usSize; i++)
-        {
-            printf("\n%d\n", usData[i]);
-        }
-
         msg[3] = usData[usSize - 1]; // BCC2
 
         if (memcmp(&bcc2, (msg + 3), 1))
