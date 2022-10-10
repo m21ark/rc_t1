@@ -135,6 +135,7 @@ int set_bcc_state(unsigned char c)
 
 int set_stop_state(unsigned char c)
 {
+    UNUSED(c);
     return OTHER_RCV;
 }
 
@@ -193,7 +194,7 @@ enum set_state_codes set_lookup_transitions(int cur_state, int rc)
 
     for (int i = 0; i < 17; i++)
     {
-        if (state_transitions[i].src_state == cur_state && state_transitions[i].ret_code == rc)
+        if (state_transitions[i].src_state == (unsigned)cur_state && state_transitions[i].ret_code == (unsigned)rc)
         {
             return state_transitions[i].dst_state;
         }

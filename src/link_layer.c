@@ -118,6 +118,7 @@ int llwrite(const unsigned char *buf, int bufSize)
 ////////////////////////////////////////////////
 int llread(unsigned char *packet)
 {
+    UNUSED(packet);
     static int r_packet = 0;
 
     int r = readMessageWithResponse(fd);
@@ -144,6 +145,7 @@ int llclose(int showStatistics)
 {
     // TODO
     // Restore the old port settings
+    UNUSED(showStatistics);
     if (tcsetattr(fd, TCSANOW, &oldtio) == -1)
     {
         perror("tcsetattr");

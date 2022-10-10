@@ -6,6 +6,7 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
                       int nTries, int timeout, const char *filename)
 {
 
+    UNUSED(filename);
     LinkLayerRole LRole = (!strcmp(role, "tx")) ? LlTx : LlRx;
     LinkLayer connectionParameters = {"", LRole, baudRate, nTries, timeout};
 
