@@ -1,0 +1,14 @@
+{
+    "files.associations": {
+        "array": "c",
+        "string": "c",
+        "string_view": "c",
+        "utils.h": "c",
+        "message.h": "c",
+        "set_st.h": "c",
+        "stdio.h": "c",
+        "frame_defines.h": "c",
+        "link_layer.h": "c",
+        "application_layer.h": "c"
+    }
+}

@@ -1,0 +1,34 @@
+// Application layer protocol implementation
+
+#include "application_layer.h"
+
+void applicationLayer(const char *serialPort, const char *role, int baudRate,
+                      int nTries, int timeout, const char *filename)
+{
+
+    UNUSED(filename);
+    LinkLayerRole LRole = (!strcmp(role, "tx")) ? LlTx : LlRx;
+    LinkLayer connectionParameters = {"", LRole, baudRate, nTries, timeout};
+
+    strcpy(connectionParameters.serialPort, serialPort);
+
+    if (llopen(connectionParameters) < 0)
+    {
+        printf("Connection was not possible");
+        return;
+    }
+    unsigned char packet;
+
+    if (connectionParameters.role == LlTx)
+    {
+        unsigned char data[2] = {FLAG, ESC};
+        llwrite(data, 2);
+    }
+
+    if (connectionParameters.role == LlRx)
+    {
+        llread(&packet);
+    }
+
+    llclose(1);
+}
