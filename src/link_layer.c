@@ -72,7 +72,8 @@ int llopen(LinkLayer connectionParameters)
     {
         unsigned char cmd[5] = {FLAG, ADDR_ER, SET, BCC(ADDR_ER, SET), FLAG};
 
-        if (sendAndWaitMessage(fd, cmd, 5) < 0) {
+        if (sendAndWaitMessage(fd, cmd, 5) < 0)
+        {
             return -1;
         }
     }
@@ -106,7 +107,7 @@ int llwrite(const unsigned char *buf, int bufSize)
             // WE already waited 12 seconds
             break;
         }
-        
+
     } while (numTries < 3);
 
     return -1;

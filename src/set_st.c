@@ -2,6 +2,11 @@
 
 unsigned char msg[5] = {0};
 
+// Moved them to here from .h to fix stupid unused warning...
+static unsigned char sdata[BUF_SIZE];
+static int data_size = 0;
+static enum set_state_codes set_cur_state = ENTRY_SET_STATE;
+
 int (*set_state[])(unsigned char c) = {
     set_entry_state, set_flag_state, set_a_state, set_c_state, set_bcc_state, set_stop_state, set_data_state};
 
@@ -147,7 +152,7 @@ int set_data_state(unsigned char c)
         msg[3] = usData[usSize - 1]; // BCC2
 
         if (memcmp(&bcc2, (msg + 3), 1))
-        {   // TODO REJ
+        { // TODO REJ
             ret = BCC2_NOT_OK;
         }
     }

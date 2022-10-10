@@ -1,6 +1,7 @@
 #include "../include/message.h"
 
 extern int (*set_state[])(unsigned char c);
+static int (*set_state_fun)(unsigned char c);
 
 int alarm_flag = 0;
 
@@ -45,7 +46,7 @@ int sendAndWaitMessage(int fd, unsigned char *msg, int messageSize)
 
             if (get_set_state() == EXIT_SET_STATE)
             {
-                printf("UA/RR/REJ RECIEVED"); 
+                printf("UA/RR/REJ RECIEVED");
                 // IF REJ IS RECIEVED WE DONT WANT TO WAIT 3 seconds ... that's why we directly go to the final state
                 break;
             }
@@ -59,14 +60,14 @@ int sendAndWaitMessage(int fd, unsigned char *msg, int messageSize)
     {
         printf("FAILED TO GET RESPONSE!");
         ret = -1;
-    } 
+    }
 
     set_set_state(ENTRY_SET_STATE);
 
     return ret;
 }
 
-int sendInformationFrame(int fd, unsigned char *data, int dataSize, int packet)
+int sendInformationFrame(int fd, const unsigned char *data, int dataSize, int packet)
 { // maybe make a struct
 
     unsigned char cmd[dataSize + 6]; // acho que depende do compilador VER
@@ -93,15 +94,15 @@ int sendInformationFrame(int fd, unsigned char *data, int dataSize, int packet)
 
     unsigned char c = get_control();
     if (ret > 0 && ((packet == 0 && c == RR(1)) || (packet == 1 && c == RR(0))))
-    {   
+    {
         return 0;
     }
 
     if (ret < 0)
     {
-        return -1; // The number of restranmissions was exceeded 
+        return -1; // The number of restranmissions was exceeded
     }
-    
+
     return 1; // THIS IS THE CASE IN WHICH A REJ WAS RECEIVED
 }
 
@@ -156,5 +157,5 @@ int readMessageWithResponse(int fd)
         }
     }
 
-    return 0; 
+    return 0;
 }

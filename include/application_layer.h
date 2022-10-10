@@ -31,5 +31,4 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
 // Baudrate settings are defined in <asm/termbits.h>, which is
 // included by <termios.h>
 
-
 #endif // _APPLICATION_LAYER_H_

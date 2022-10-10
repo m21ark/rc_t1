@@ -3,7 +3,7 @@
 
 # Parameters
 CC = gcc
-CFLAGS = -Wall
+CFLAGS = -Wall -Wextra
 
 SRC = src/
 INCLUDE = include/

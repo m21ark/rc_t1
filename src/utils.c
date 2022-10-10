@@ -13,7 +13,6 @@ int countProblematicFlags(unsigned char *data, int dataSize)
     return n_misleading_flags - 2;
 }
 
-
 int stuffData(unsigned char *data, int dataSize, unsigned char *stData, int stSize)
 {
 
@@ -40,7 +39,7 @@ int stuffData(unsigned char *data, int dataSize, unsigned char *stData, int stSi
     return 0;
 }
 
-unsigned char BCC2(unsigned char *data, int dataSize)
+unsigned char BCC2(const unsigned char *data, int dataSize)
 {
     unsigned char bcc = data[0];
 
@@ -64,7 +63,6 @@ int unstuffData(unsigned char *data, int dataSize, unsigned char *stData)
         {
             stData[j] = data[i];
         }
-        
     }
     return j;
 }

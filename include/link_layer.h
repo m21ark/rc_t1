@@ -30,9 +30,6 @@ typedef struct
 #define BAUDRATE B38400
 #define _POSIX_SOURCE 1 // POSIX compliant source
 
-
-
-
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -48,8 +45,8 @@ typedef struct
 #include "set_st.h"
 #include "message.h"
 
+// static int (*set_state_fun)(unsigned char c);
 
-static int (*set_state_fun)(unsigned char c);
 struct termios oldtio;
 int fd;
 // Open a connection using the "port" parameters defined in struct linkLayer.

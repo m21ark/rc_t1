@@ -11,7 +11,8 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
 
     strcpy(connectionParameters.serialPort, serialPort);
 
-    if (llopen(connectionParameters) < 0) {
+    if (llopen(connectionParameters) < 0)
+    {
         printf("Connection was not possible");
         return;
     }
@@ -23,11 +24,10 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
         llwrite(data, 2);
     }
 
-    if (connectionParameters.role == LlRx) 
+    if (connectionParameters.role == LlRx)
     {
         llread(&packet);
     }
-
 
     llclose(1);
 }
