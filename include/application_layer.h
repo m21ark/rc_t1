@@ -4,7 +4,7 @@
 #ifndef _APPLICATION_LAYER_H_
 #define _APPLICATION_LAYER_H_
 
-#define AL_DATA_SIZE 7
+#define AL_DATA_SIZE 20
 
 #include <fcntl.h>
 #include <stdio.h>

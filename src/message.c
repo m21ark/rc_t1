@@ -113,6 +113,7 @@ int readMessageWithResponse(int fd)
 
     unsigned int isDataFrame = 0; // TODO :: We can use msg and stop using this ... probl the best
 
+    int i = 0;
     while (1) // SEE THIS LATTER :: É importante uma vez que assim fica a ler lixo quando à barulho
     {
         bytes = read(fd, &buf, 1);
@@ -130,7 +131,12 @@ int readMessageWithResponse(int fd)
         printf("rt:%d\n", rt);
         set_set_state(set_lookup_transitions(st, rt));
 
-        printf("state:%d:%d:%c\n", get_set_state(), buf, buf);
+        if (get_set_state() != 6)
+            printf("state:%d:%d:%c\n", get_set_state(), buf, buf);
+        else
+        {
+            printf("meSsage>|%c|\n", buf);
+        }
 
         if (get_set_state() == EXIT_SET_STATE)
         {

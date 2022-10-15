@@ -4,9 +4,18 @@
 
 FILE *fp_tx = NULL;
 FILE *fp_rx = NULL;
-int file_send_size = 0;
 
-int al_open_tx(char *filename_tx)
+void al_close_rx()
+{
+    fclose(fp_rx);
+}
+
+void al_close_tx()
+{
+    fclose(fp_tx);
+}
+
+int al_open_tx(const char *filename_tx)
 {
     fp_tx = fopen(filename_tx, "r");
     fseek(fp_tx, 0, SEEK_END);
@@ -15,7 +24,7 @@ int al_open_tx(char *filename_tx)
     return file_size;
 }
 
-void al_open_rx(char *filename_rx)
+void al_open_rx(const char *filename_rx)
 {
     fp_rx = fopen(filename_rx, "w");
 }
@@ -34,20 +43,6 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
                       int nTries, int timeout, const char *filename)
 {
 
-    file_send_size = al_open_tx("teste1.txt");
-    al_open_rx("teste2.txt");
-
-    /*
-    char message_send[AL_DATA_SIZE + 1];
-
-    int num_bytes_sent;
-    while (num_bytes_sent = al_write(message_send, AL_DATA_SIZE))
-        al_read(message_send, num_bytes_sent);
-
-    return;
-    */
-
-    UNUSED(filename);
     LinkLayerRole LRole = (!strcmp(role, "tx")) ? LlTx : LlRx;
     LinkLayer connectionParameters = {"", LRole, baudRate, nTries, timeout};
 
@@ -58,10 +53,11 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
         printf("Connection was not possible");
         return;
     }
-    unsigned char packet;
 
     if (connectionParameters.role == LlTx)
     {
+        int file_send_size = al_open_tx(filename);
+        UNUSED(file_send_size);
         unsigned char message_send[AL_DATA_SIZE];
 
         int num_bytes_send;
@@ -71,14 +67,22 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
 
     if (connectionParameters.role == LlRx)
     {
-        // temporary cheatcode to inform receiver of what they need to read
-        int i = 1 + file_send_size / AL_DATA_SIZE + ((file_send_size % AL_DATA_SIZE != 0) ? 1 : 0);
-        printf("\n&%d&\n", i);
+
+        al_open_rx(filename);
+        unsigned char message_rcv[AL_DATA_SIZE];
+x
+        // unsigned char *aux = "ola meu deus\0";
+        // al_read(aux, strlen(aux));
+        // exit(0);
+
+        int i = 20; // falta a parte de controlar o tamanho do ficheiro para o receiver saber o q esperar
         while (i--)
         {
-            llread(&packet);
-            printf("#%d#", i);
+            llread(message_rcv);
+            printf("\nWRITING=|%s|\n", message_rcv);
+            al_read(message_rcv, AL_DATA_SIZE);
         }
+        al_close_rx();
     }
 
     llclose(1);
