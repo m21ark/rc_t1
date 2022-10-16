@@ -125,7 +125,7 @@ int llread(unsigned char *packet)
         get_data(sms);
         memcpy(packet, sms, data_size);
         printf("\nDATASIZE=%d", data_size);
-        printf("\nDATAINFO=|%s|\n", sms);
+        printf("\nDATAINFO=|%s|\n", packet);
         return data_size;
     }
     else if (r < 0)

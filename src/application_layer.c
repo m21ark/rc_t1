@@ -185,7 +185,7 @@ int sendFile(char *filename)
     printf("Main file was sent.\nSending End Command Packet...\n");
 
     // Send End Command packet
-    packet_size = makeCtrlPacket(CTRL_START, message_send, filename, file_send_size);
+    packet_size = makeCtrlPacket(CTRL_END, message_send, filename, file_send_size);
 
     if (llwrite(message_send, packet_size) < 0)
     {
