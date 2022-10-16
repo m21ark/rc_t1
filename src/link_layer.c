@@ -120,12 +120,11 @@ int llread(unsigned char *packet)
         unsigned char cmd[5] = {FLAG, ADDR_ER, RR(r_packet), BCC(ADDR_ER, RR(r_packet)), FLAG};
         write(fd, cmd, 5);
 
-        // parte de devolver info lida no packet passado em arg
         int data_size = get_data_size();
         unsigned char sms[data_size];
         get_data(sms);
         memcpy(packet, sms, data_size);
-        // printf("\nTO USE = |%s|%d|\n", sms, data_size);
+        return data_size; // size of sms ?
     }
     else if (r < 0)
     {
@@ -134,7 +133,7 @@ int llread(unsigned char *packet)
         printf("\nREJ\n");
     }
 
-    return 0; // TODO trocar por numbytes a ser lidos para packet
+    return 0;
 }
 
 int llclose(int showStatistics)

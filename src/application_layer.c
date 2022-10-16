@@ -143,7 +143,7 @@ int sendFile(char *filename)
     // send main file content
     int num_bytes_send;
     while (num_bytes_send = readFromFile(message_send, AL_DATA_SIZE))
-        if (!llwrite(message_send, AL_DATA_SIZE))
+        if (llwrite(message_send, AL_DATA_SIZE) < 0)
             break;
 
     printf("Main file was sent.\nSending End Command Packet...\n");
@@ -156,7 +156,7 @@ int sendFile(char *filename)
     return 0;
 }
 
-int rcvFile()
+int rcvFile(char *filename)
 {
 
     printf("Waiting for Start Command Packet...\n");
@@ -170,15 +170,16 @@ int rcvFile()
     }
 
     int file_rcv_size;
-    char filename[MAXSIZE_FILE_NAME];
-    if (!parseCtrlPacket(message_rcv, &file_rcv_size, filename))
+    char rcv_filename[MAXSIZE_FILE_NAME];
+
+    if (parseCtrlPacket(message_rcv, &file_rcv_size, rcv_filename) < 0)
     {
         printf("Error parsing Start Command packet.\n");
         return -1;
     }
 
     // create file where to write incoming contents
-    printf("Creating file '%s' of size '%d': %s\n", file_rcv_size);
+    printf("Receiving file info: file '%s' with size %dB\n", rcv_filename, file_rcv_size);
     al_open_rx(filename);
 
     printf("Starting to write to file...\n");
@@ -186,12 +187,12 @@ int rcvFile()
     while (1)
     {
         packet_size = llread(message_rcv);
-        // printf("\nWRITING=|%s|\n", message_rcv);
         writeToFile(message_rcv, AL_DATA_SIZE);
 
         num_bytes_rcv += packet_size * 8;
+        printf("Current progress: %d/%d\n", num_bytes_rcv, file_rcv_size);
 
-        if (num_bytes_rcv == file_rcv_size)
+        if (num_bytes_rcv > file_rcv_size)
             break; // File is complete
     }
 
@@ -206,14 +207,14 @@ int rcvFile()
     }
 
     int file_rcv_size_end;
-    char fileName_end[MAXSIZE_FILE_NAME];
-    if (!parseCtrlPacket(message_rcv, &file_rcv_size, filename))
+    char rcv_fileName_end[MAXSIZE_FILE_NAME];
+    if (parseCtrlPacket(message_rcv, &file_rcv_size, filename) < 0)
     {
         printf("Error parsing End Command packet.\n");
         return -1;
     }
 
-    if (strcmp(filename, fileName_end) != 0)
+    if (strcmp(rcv_filename, rcv_fileName_end) != 0)
     {
         printf("Filenames of start/end control packet dont match.\n");
         return -1;
@@ -226,6 +227,7 @@ int rcvFile()
     }
 
     al_close_rx();
+    printf("END OF RCV_FILE\n");
     return 0;
 }
 
@@ -257,7 +259,7 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
         }
 
     if (connectionParameters.role == LlRx)
-        if (rcvFile() < 0)
+        if (rcvFile(filename) < 0)
         {
             printf("File receiving failed.\n");
             return;
