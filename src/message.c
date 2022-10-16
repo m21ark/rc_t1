@@ -111,7 +111,10 @@ int readMessageWithResponse(int fd)
     unsigned char buf = 0;
     unsigned char bytes;
 
-    while (1) // SEE THIS LATTER :: É importante uma vez que assim fica a ler lixo quando à barulho
+    alarm(12);
+    alarm_flag = 0;
+
+    while (!alarm_flag) // SEE THIS LATTER :: É importante uma vez que assim fica a ler lixo quando à barulho
     {
         bytes = read(fd, &buf, 1);
         if (bytes == 0)
@@ -134,6 +137,7 @@ int readMessageWithResponse(int fd)
         {
             printf("SET RECIEVED");
             set_set_state(ENTRY_SET_STATE);
+            alarm(0);
             if (get_control() == SET)
             {
                 unsigned char cmd[5] = {FLAG, ADDR_ER, UA, BCC(ADDR_ER, UA), FLAG};
@@ -156,5 +160,6 @@ int readMessageWithResponse(int fd)
         }
     }
 
+    alarm(0);
     return -1;
 }
