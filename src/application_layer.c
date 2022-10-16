@@ -179,7 +179,7 @@ int sendFile(char *filename)
         if (llwrite(message_send, msg_size) < 0)
             return -1;
 
-        seqNum = (seqNum + 1) % 256;
+        seqNum = (seqNum + 1)  % SEQUENCE_MODULO;
     }
 
     printf("Main file was sent.\nSending End Command Packet...\n");
@@ -255,6 +255,8 @@ int rcvFile(char *filename)
             if (num_bytes_rcv == file_rcv_size)
                 break; // File is complete
         }
+
+        printf("\nPACKET_NR:: %d\n", seqNum);
        //else
        //{
        //    printf("Received a packet without the data flag.\n");
