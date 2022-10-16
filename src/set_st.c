@@ -44,7 +44,7 @@ int set_flag_state(unsigned char c)
 }
 
 int set_a_state(unsigned char c)
-{ 
+{
     enum set_ret_codes ret = OTHER_RCV;
 
     switch (c)
@@ -143,7 +143,7 @@ int set_data_state(unsigned char c)
         msg[3] = usData[usSize - 1]; // BCC2
 
         if (memcmp(&bcc2, (msg + 3), 1))
-        { 
+        {
             ret = BCC2_NOT_OK;
         }
     }
@@ -214,7 +214,7 @@ int get_data_size()
 void get_data(unsigned char dt[])
 {
     // printf("\nDATA=|%s|\n", sdata);
-    memcpy(dt, sdata, data_size-1);
+    memcpy(dt, sdata, data_size - 1);
 }
 
 void set_tx_ready()

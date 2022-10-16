@@ -6,6 +6,15 @@
 
 #define AL_DATA_SIZE 20
 
+#define CTRL_DATA 0x01
+#define CTRL_START 0x02
+#define CTRL_END 0x03
+
+#define TYPE_FILESIZE 0x00
+#define TYPE_FILENAME 0x01
+
+#define MAXSIZE_FILE_NAME 127
+
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>

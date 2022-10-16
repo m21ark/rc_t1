@@ -23,7 +23,7 @@ int sendAndWaitMessage(int fd, unsigned char *msg, int messageSize)
         alarm_flag = 0;
 
         ret = write(fd, msg, messageSize);
-        printf("\nbytes written, %d\n", numTries);
+        printf("\nConnection attempt number %d\n", numTries);
         alarm(3);
 
         unsigned char buf = 0;
@@ -58,7 +58,7 @@ int sendAndWaitMessage(int fd, unsigned char *msg, int messageSize)
 
     if (get_set_state() != EXIT_SET_STATE)
     {
-        printf("FAILED TO GET RESPONSE!");
+        printf("\nFailed to get a response.\n");
         ret = -1;
     }
 

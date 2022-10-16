@@ -146,7 +146,7 @@ int llread(unsigned char *packet)
         printf("\nREJ\n");
     }
 
-    return 0;
+    return 0; // TODO trocar por numbytes a ser lidos para packet
 }
 
 ////////////////////////////////////////////////
@@ -167,16 +167,16 @@ int llclose(int showStatistics)
         unsigned char ua_cmd[5] = {FLAG, ADDR_ER, UA, BCC(ADDR_ER, UA), FLAG};
         write(fd, ua_cmd, 5);
     }
-    else if  (is_rx())
+    else if (is_rx())
     {
         printf("\nRX\n");
 
         int r = readMessageWithResponse(fd);
 
-        if (r < 0) {
+        if (r < 0)
+        {
             return -1;
         }
-
     }
 
     UNUSED(showStatistics);
