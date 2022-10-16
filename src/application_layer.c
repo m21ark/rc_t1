@@ -255,8 +255,11 @@ int rcvFile(char *filename)
             if (num_bytes_rcv == file_rcv_size)
                 break; // File is complete
         }
-        // printf("Received a packet without the data flag.\n");
-        // return -1;
+        else
+        {
+            printf("Received a packet without the data flag.\n");
+            return -1;
+        }
     }
 
     printf("Write to file complete.\nWaiting for End Control Packet\n");
@@ -271,7 +274,8 @@ int rcvFile(char *filename)
 
     int file_rcv_size_end;
     char rcv_fileName_end[MAXSIZE_FILE_NAME];
-    if (parseCtrlPacket(message_rcv, &file_rcv_size, filename) < 0)
+
+    if (parseCtrlPacket(message_rcv, &file_rcv_size_end, rcv_fileName_end) < 0)
     {
         printf("Error parsing End Command packet.\n");
         return -1;
@@ -279,13 +283,15 @@ int rcvFile(char *filename)
 
     if (strcmp(rcv_filename, rcv_fileName_end) != 0)
     {
-        printf("Filenames of start/end control packet dont match.\n");
+        printf("\nFilenames of start/end control packet dont match: ");
+        printf("|%s| != |%s|\n", rcv_filename, rcv_fileName_end);
         return -1;
     }
 
     if (file_rcv_size != file_rcv_size_end)
     {
-        printf("Filesize of start/end control packet dont match.\n");
+        printf("\nFilesize of start/end control packet dont match: ");
+        printf("|%d| != |%d|\n", file_rcv_size, file_rcv_size_end);
         return -1;
     }
 
