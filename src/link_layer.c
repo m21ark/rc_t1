@@ -9,7 +9,6 @@ extern int (*set_state[])(unsigned char c);
 ////////////////////////////////////////////////
 int llopen(LinkLayer connectionParameters)
 {
-    // TODO
     signal(SIGALRM, alarm_handler);
 
     // Open serial port device for reading and writing, and not as controlling tty
@@ -65,7 +64,11 @@ int llopen(LinkLayer connectionParameters)
 
     if (connectionParameters.role == LlRx)
     {
-        readMessageWithResponse(fd);
+        if (readMessageWithResponse(fd) < 0)
+        {
+            return -1;
+        }
+        set_rx_ready();
     }
 
     if (connectionParameters.role == LlTx)
@@ -76,6 +79,7 @@ int llopen(LinkLayer connectionParameters)
         {
             return -1;
         }
+        set_tx_ready();
     }
 
     return 1;
@@ -143,8 +147,31 @@ int llread(unsigned char *packet)
 ////////////////////////////////////////////////
 int llclose(int showStatistics)
 {
-    // TODO
-    // Restore the old port settings
+    if (is_tx())
+    {
+        printf("\nTX\n");
+        unsigned char cmd[5] = {FLAG, ADDR_ER, DISC, BCC(ADDR_ER, DISC), FLAG};
+
+        if (sendAndWaitMessage(fd, cmd, 5) < 0)
+        {
+            return -1;
+        }
+
+        unsigned char ua_cmd[5] = {FLAG, ADDR_ER, UA, BCC(ADDR_ER, UA), FLAG};
+        write(fd, ua_cmd, 5);
+    }
+    else if  (is_rx())
+    {
+        printf("\nRX\n");
+
+        int r = readMessageWithResponse(fd);
+
+        if (r < 0) {
+            return -1;
+        }
+
+    }
+
     UNUSED(showStatistics);
     if (tcsetattr(fd, TCSANOW, &oldtio) == -1)
     {

@@ -65,4 +65,13 @@ unsigned char get_control();
 int get_data_size();
 void get_data(unsigned char *dt);
 
+static int tx_ready_to_send = 0;
+static int rx_RR = 0;
+
+void set_tx_ready();
+void set_rx_ready();
+
+int is_tx();
+int is_rx();
+
 #endif

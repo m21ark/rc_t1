@@ -44,24 +44,14 @@ int set_flag_state(unsigned char c)
 }
 
 int set_a_state(unsigned char c)
-{
-    // ----------------------------------------------------------------------
-    // TODO ::: AQUI VAI TER UM ERRO ... basicamente só posso dizer que o tx e rx esta ready
-    // quando for confirmado de que n houve erros na trama MUDARRRRRRR
-    // ----------------------------------------------------------------------
-
+{ 
     enum set_ret_codes ret = OTHER_RCV;
-    static int tx_ready_to_send = 0;
-    static int rx_RR = 0;
+
     switch (c)
     {
     case SET: // A UA VAI SER DIFERENTE
-        rx_RR = 1;
-        ret = C_RCV;
-        msg[2] = c;
-        break;
     case UA:
-        tx_ready_to_send = 1; // TX can recieve RR
+    case DISC:
         ret = C_RCV;
         msg[2] = c;
         break;
@@ -153,7 +143,7 @@ int set_data_state(unsigned char c)
         msg[3] = usData[usSize - 1]; // BCC2
 
         if (memcmp(&bcc2, (msg + 3), 1))
-        { // TODO REJ
+        { 
             ret = BCC2_NOT_OK;
         }
     }
@@ -224,4 +214,23 @@ int get_data_size()
 void get_data(unsigned char *dt)
 {
     memcpy(sdata, dt, data_size);
+}
+
+void set_tx_ready()
+{
+    tx_ready_to_send = 1; // TX can recieve RR
+}
+void set_rx_ready()
+{
+    rx_RR = 1;
+}
+
+int is_tx()
+{
+    return tx_ready_to_send;
+}
+
+int is_rx()
+{
+    return rx_RR;
 }
