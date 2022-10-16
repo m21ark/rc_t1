@@ -213,7 +213,6 @@ int get_data_size()
 }
 void get_data(unsigned char dt[])
 {
-    // printf("\nDATA=|%s|\n", sdata);
     memcpy(dt, sdata, data_size - 1);
 }
 

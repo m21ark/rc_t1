@@ -85,15 +85,14 @@ int parseCtrlPacket(unsigned char *packetBuffer, int *fileSize, char *fileName)
         return -1;
     }
 
-    int length1;
+    int length;
 
     if (packetBuffer[1] == TYPE_FILESIZE)
     {
 
         *fileSize = 0;
-        length1 = (int)packetBuffer[2];
-
-        for (int i = 0; i < length1; i++)
+        length = (int)packetBuffer[2];
+        for (int i = 0; i < length; i++)
             *fileSize = *fileSize * 256 + (int)packetBuffer[3 + i];
     }
     else
@@ -102,14 +101,12 @@ int parseCtrlPacket(unsigned char *packetBuffer, int *fileSize, char *fileName)
         return -1;
     }
 
-    int length2;
-    int fileNameStart = 5 + length1;
+    int fileNameStart = 5 + length;
 
     if (packetBuffer[fileNameStart - 2] == TYPE_FILENAME)
     {
-        length2 = (int)packetBuffer[fileNameStart - 1];
-
-        for (int i = 0; i < length2; i++)
+        length = (int)packetBuffer[fileNameStart - 1];
+        for (int i = 0; i < length; i++)
             fileName[i] = packetBuffer[fileNameStart + i];
     }
     else
@@ -121,6 +118,40 @@ int parseCtrlPacket(unsigned char *packetBuffer, int *fileSize, char *fileName)
     return 0;
 }
 
+int makeDataPacket(unsigned char *packet, int seqNum, unsigned char *data, int dataLen)
+{
+
+    int l1 = dataLen % 256;
+    int l2 = dataLen / 256;
+
+    packet[0] = CTRL_DATA;
+    packet[1] = seqNum;
+    packet[2] = l2;
+    packet[3] = l1;
+
+    // actual data packets
+    for (int i = 4; i < dataLen + 4; i++)
+        packet[i] = data[i];
+
+    return dataLen + 4;
+}
+
+int parseDataPacket(unsigned char *packet, unsigned char *data)
+{
+
+    if (packet[0] != CTRL_DATA)
+        return -1;
+
+    int l1 = packet[3], l2 = packet[2];
+    int data_size = 256 * l2 + l1;
+
+    // actual data packets
+    for (int i = 0; i < data_size; i++)
+        data[i] = packet[i + 4];
+
+    return packet[1];
+}
+
 int sendFile(char *filename)
 {
 
@@ -128,7 +159,8 @@ int sendFile(char *filename)
     printf("Opening file to be sent...\n");
     int file_send_size = al_open_tx(filename);
     UNUSED(file_send_size);
-    unsigned char message_send[AL_DATA_SIZE];
+    unsigned char message_send[MAXSIZE_FRAME];
+    unsigned char data[MAXSIZE_DATA];
 
     printf("Sending Start Command Packet...\n");
     // Send the Start Command packet
@@ -141,10 +173,17 @@ int sendFile(char *filename)
 
     printf("Sending Main File...\n");
     // send main file content
-    int num_bytes_send;
-    while (num_bytes_send = readFromFile(message_send, AL_DATA_SIZE))
-        if (llwrite(message_send, AL_DATA_SIZE) < 0)
-            break;
+    int seqNum = 0, num_read_bytes;
+    while (num_read_bytes = readFromFile(data, MAXSIZE_DATA))
+    {
+
+        int msg_size = makeDataPacket(message_send, seqNum, data, num_read_bytes);
+
+        if (llwrite(message_send, msg_size) < 0)
+            return -1;
+
+        seqNum = (seqNum + 1) % 256;
+    }
 
     printf("Main file was sent.\nSending End Command Packet...\n");
 
@@ -160,7 +199,8 @@ int rcvFile(char *filename)
 {
 
     printf("Waiting for Start Command Packet...\n");
-    unsigned char message_rcv[AL_DATA_SIZE];
+    unsigned char message_rcv[MAXSIZE_FRAME];
+    unsigned char data[MAXSIZE_DATA];
     llread(message_rcv);
 
     if (message_rcv[0] != CTRL_START)
@@ -183,17 +223,35 @@ int rcvFile(char *filename)
     al_open_rx(filename);
 
     printf("Starting to write to file...\n");
-    int packet_size, num_bytes_rcv = 0;
+    int packet_size, num_bytes_rcv = 0, seqNum = 0;
     while (1)
     {
         packet_size = llread(message_rcv);
-        writeToFile(message_rcv, AL_DATA_SIZE);
 
-        num_bytes_rcv += packet_size * 8;
-        printf("Current progress: %d/%d\n", num_bytes_rcv, file_rcv_size);
+        if (message_rcv[0] == CTRL_END)
+            break;
+        else if (message_rcv[0] == CTRL_DATA)
+        {
+            int rcv_seqNum = parseDataPacket(message_rcv, data);
+            if (seqNum != rcv_seqNum)
+            {
+                printf("Received packet out of order!\n");
+                return -1;
+            }
 
-        if (num_bytes_rcv > file_rcv_size)
-            break; // File is complete
+            seqNum = (seqNum + 1) % SEQUENCE_MODULO;
+
+            int data_size = packet_size - 4; // removing the 4 bytes for the data packet head
+            writeToFile(data, data_size);    // writing data bytes to file
+
+            num_bytes_rcv += data_size;
+            printf("Current progress: %d/%d\n", num_bytes_rcv, file_rcv_size);
+
+            if (num_bytes_rcv >= file_rcv_size)
+                break; // File is complete
+        }
+        printf("Received a packet without the data flag.\n");
+        return -1;
     }
 
     printf("Write to file complete.\nWaiting for End Control Packet\n");
@@ -227,7 +285,6 @@ int rcvFile(char *filename)
     }
 
     al_close_rx();
-    printf("END OF RCV_FILE\n");
     return 0;
 }
 

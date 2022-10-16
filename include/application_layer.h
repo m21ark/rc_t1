@@ -4,7 +4,11 @@
 #ifndef _APPLICATION_LAYER_H_
 #define _APPLICATION_LAYER_H_
 
-#define AL_DATA_SIZE 20
+#define MAXSIZE_DATA 16 // Max size of AL Data Packet
+#define MAXSIZE_FRAME 32 // Max size of Individual Frame
+// FRAME > DATA ?
+
+#define SEQUENCE_MODULO 128 // packet sending rotation to know if out of order
 
 #define CTRL_DATA 0x01
 #define CTRL_START 0x02
@@ -12,7 +16,6 @@
 
 #define TYPE_FILESIZE 0x00
 #define TYPE_FILENAME 0x01
-
 #define MAXSIZE_FILE_NAME 127
 
 #include <fcntl.h>
