@@ -130,8 +130,8 @@ int makeDataPacket(unsigned char *packet, int seqNum, unsigned char *data, int d
     packet[3] = l1;
 
     // actual data packets
-    for (int i = 4; i < dataLen + 4; i++)
-        packet[i] = data[i];
+    for (int i = 0; i < dataLen; i++)
+        packet[i + 4] = data[i];
 
     return dataLen + 4;
 }

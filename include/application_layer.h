@@ -4,11 +4,13 @@
 #ifndef _APPLICATION_LAYER_H_
 #define _APPLICATION_LAYER_H_
 
-#define MAXSIZE_DATA 16 // Max size of AL Data Packet
-#define MAXSIZE_FRAME 20 // Max size of Individual Frame
-// FRAME > DATA ?
+// 60 64
+// 256 252
+#define MAXSIZE_DATA 4092 // Max size of AL Data Packet
+#define MAXSIZE_FRAME 4096 // Max size of Individual Frame
+// FRAME > DATA ? MAXSIZE_FRAME = MAXSIZE_DATA + 4
 
-#define SEQUENCE_MODULO 128 // packet sending rotation to know if out of order
+#define SEQUENCE_MODULO 16 // packet sending rotation to know if out of order
 
 #define CTRL_DATA 0x01
 #define CTRL_START 0x02
