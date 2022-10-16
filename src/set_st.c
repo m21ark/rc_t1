@@ -211,9 +211,12 @@ int get_data_size()
 {
     return data_size;
 }
-void get_data(unsigned char dt[])
+int get_data(unsigned char dt[])
 {
-    memcpy(dt, sdata, data_size - 1);
+    unsigned char usData[data_size]; // está repetido 2 vezes
+    int usSize = unstuffData(sdata, data_size, usData);
+    memcpy(dt, usData, usSize - 1);
+    return usSize - 1;
 }
 
 void set_tx_ready()

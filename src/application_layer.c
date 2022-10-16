@@ -255,11 +255,11 @@ int rcvFile(char *filename)
             if (num_bytes_rcv == file_rcv_size)
                 break; // File is complete
         }
-        else
-        {
-            printf("Received a packet without the data flag.\n");
-            return -1;
-        }
+       //else
+       //{
+       //    printf("Received a packet without the data flag.\n");
+       //    return -1;
+       //}
     }
 
     printf("Write to file complete.\nWaiting for End Control Packet\n");

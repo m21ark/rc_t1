@@ -4,7 +4,7 @@
 #define EXIT_SET_STATE stop
 #define ENTRY_SET_STATE start
 
-#define BUF_SIZE 4096
+#define BUF_SIZE 10000
 
 #include "frame_defines.h"
 #include "utils.h"
@@ -63,7 +63,7 @@ void set_set_state(enum set_state_codes st);
 
 unsigned char get_control();
 int get_data_size();
-void get_data(unsigned char dt[]);
+int get_data(unsigned char dt[]);
 
 static int tx_ready_to_send = 0;
 static int rx_RR = 0;
