@@ -120,7 +120,13 @@ int llread(unsigned char *packet)
         unsigned char cmd[5] = {FLAG, ADDR_ER, RR(r_packet), BCC(ADDR_ER, RR(r_packet)), FLAG};
         write(fd, cmd, 5);
 
-        return get_rcv_data(packet); // size of sms ?
+        int data_size = get_data_size() - 1;
+        unsigned char sms[data_size];
+        get_data(sms);
+        memcpy(packet, sms, data_size);
+        printf("\nDATASIZE=%d", data_size);
+        printf("\nDATAINFO=|%s|\n", sms);
+        return data_size;
     }
     else if (r < 0)
     {

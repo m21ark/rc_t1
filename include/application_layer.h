@@ -5,7 +5,7 @@
 #define _APPLICATION_LAYER_H_
 
 #define MAXSIZE_DATA 16 // Max size of AL Data Packet
-#define MAXSIZE_FRAME 32 // Max size of Individual Frame
+#define MAXSIZE_FRAME 20 // Max size of Individual Frame
 // FRAME > DATA ?
 
 #define SEQUENCE_MODULO 128 // packet sending rotation to know if out of order

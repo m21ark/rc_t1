@@ -155,15 +155,13 @@ int parseDataPacket(unsigned char *packet, unsigned char *data)
 int sendFile(char *filename)
 {
 
-    // open file to send
     printf("Opening file to be sent...\n");
     int file_send_size = al_open_tx(filename);
-    UNUSED(file_send_size);
+
     unsigned char message_send[MAXSIZE_FRAME];
     unsigned char data[MAXSIZE_DATA];
 
     printf("Sending Start Command Packet...\n");
-    // Send the Start Command packet
     int packet_size = makeCtrlPacket(CTRL_START, message_send, filename, file_send_size);
     if (llwrite(message_send, packet_size) < 0)
     {
@@ -172,7 +170,6 @@ int sendFile(char *filename)
     }
 
     printf("Sending Main File...\n");
-    // send main file content
     int seqNum = 0, num_read_bytes;
     while (num_read_bytes = readFromFile(data, MAXSIZE_DATA))
     {
@@ -189,7 +186,12 @@ int sendFile(char *filename)
 
     // Send End Command packet
     packet_size = makeCtrlPacket(CTRL_START, message_send, filename, file_send_size);
-    llwrite(message_send, packet_size);
+
+    if (llwrite(message_send, packet_size) < 0)
+    {
+        printf("Unable to send END Command Packet.\n");
+        return -1;
+    }
 
     al_close_tx();
     return 0;
@@ -199,8 +201,10 @@ int rcvFile(char *filename)
 {
 
     printf("Waiting for Start Command Packet...\n");
+
     unsigned char message_rcv[MAXSIZE_FRAME];
     unsigned char data[MAXSIZE_DATA];
+
     llread(message_rcv);
 
     if (message_rcv[0] != CTRL_START)
@@ -230,6 +234,7 @@ int rcvFile(char *filename)
 
         if (message_rcv[0] == CTRL_END)
             break;
+
         else if (message_rcv[0] == CTRL_DATA)
         {
             int rcv_seqNum = parseDataPacket(message_rcv, data);
@@ -247,11 +252,11 @@ int rcvFile(char *filename)
             num_bytes_rcv += data_size;
             printf("Current progress: %d/%d\n", num_bytes_rcv, file_rcv_size);
 
-            if (num_bytes_rcv >= file_rcv_size)
+            if (num_bytes_rcv == file_rcv_size)
                 break; // File is complete
         }
-        printf("Received a packet without the data flag.\n");
-        return -1;
+        // printf("Received a packet without the data flag.\n");
+        // return -1;
     }
 
     printf("Write to file complete.\nWaiting for End Control Packet\n");

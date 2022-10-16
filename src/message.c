@@ -167,13 +167,3 @@ int readMessageWithResponse(int fd)
     return -1;
 }
 
-int get_rcv_data(char *packet)
-{
-    int data_size = get_data_size();
-    unsigned char sms[data_size];
-    get_data(sms);
-    memcpy(packet, sms, data_size - 1);
-    printf("\nDATASIZE=%d\n", data_size - 1);
-    printf("\nDATAINFO=|%s|\n", sms);
-    return data_size - 1;
-}
