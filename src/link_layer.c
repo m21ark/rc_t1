@@ -120,7 +120,7 @@ int llread(unsigned char *packet)
         unsigned char cmd[5] = {FLAG, ADDR_ER, RR(r_packet), BCC(ADDR_ER, RR(r_packet)), FLAG};
         write(fd, cmd, 5);
         
-        return get_data(packet) - 1;
+        return get_data(packet);
     }
     else if (r < 0)
     {

@@ -6,7 +6,7 @@
 
 // 60 64
 // 256 252
-#define MAXSIZE_DATA 4092 // Max size of AL Data Packet
+#define MAXSIZE_DATA 2 // Max size of AL Data Packet
 #define MAXSIZE_FRAME 9000 // Max size of Individual Frame
 // FRAME > DATA ? MAXSIZE_FRAME = MAXSIZE_DATA + 4
 
