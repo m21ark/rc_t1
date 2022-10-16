@@ -43,8 +43,7 @@ int makeCtrlPacket(unsigned char ctrlByte, unsigned char *packet, char *filename
 {
 
     packet[0] = ctrlByte;
-
-    packet[1] = 0x00;
+    packet[1] = TYPE_FILESIZE;
 
     int length = 0;
     int currentFileSize = filesize;
@@ -61,22 +60,18 @@ int makeCtrlPacket(unsigned char ctrlByte, unsigned char *packet, char *filename
             packet[i] = packet[i - 1];
 
         packet[3] = (unsigned char)rest;
-
         currentFileSize = div;
     }
 
     packet[2] = (unsigned char)length;
-
-    packet[3 + length] = 0x01; // ?
+    packet[3 + length] = TYPE_FILENAME;
 
     int fileNameStart = 5 + length; // beginning of v2
 
     packet[4 + length] = (unsigned char)(strlen(filename) + 1); // adds file name length (including '\0)
 
     for (unsigned int j = 0; j < (strlen(filename) + 1); j++)
-    { // strlen(fileName) + 1 in order to add the '\0' char
-        packet[fileNameStart + j] = filename[j];
-    }
+        packet[fileNameStart + j] = filename[j]; // strlen(fileName) + 1 in order to add the '\0' char
 
     return 3 + length + 2 + strlen(filename) + 1; // total length of the packet
 }
@@ -85,7 +80,10 @@ int parseCtrlPacket(unsigned char *packetBuffer, int *fileSize, char *fileName)
 {
 
     if (packetBuffer[0] != CTRL_START && packetBuffer[0] != CTRL_END)
+    {
+        printf("Packet being parsed doesn't correspond to Command packet.\n");
         return -1;
+    }
 
     int length1;
 
@@ -99,7 +97,10 @@ int parseCtrlPacket(unsigned char *packetBuffer, int *fileSize, char *fileName)
             *fileSize = *fileSize * 256 + (int)packetBuffer[3 + i];
     }
     else
+    {
+        printf("Error during command packet filesize parsing.\n");
         return -1;
+    }
 
     int length2;
     int fileNameStart = 5 + length1;
@@ -112,8 +113,119 @@ int parseCtrlPacket(unsigned char *packetBuffer, int *fileSize, char *fileName)
             fileName[i] = packetBuffer[fileNameStart + i];
     }
     else
+    {
+        printf("Error during command packet filename parsing.\n");
         return -1;
+    }
 
+    return 0;
+}
+
+int sendFile(char *filename)
+{
+
+    // open file to send
+    printf("Opening file to be sent...\n");
+    int file_send_size = al_open_tx(filename);
+    UNUSED(file_send_size);
+    unsigned char message_send[AL_DATA_SIZE];
+
+    printf("Sending Start Command Packet...\n");
+    // Send the Start Command packet
+    int packet_size = makeCtrlPacket(CTRL_START, message_send, filename, file_send_size);
+    if (llwrite(message_send, packet_size) < 0)
+    {
+        printf("Unable to send Start Command Packet.\n");
+        return -1;
+    }
+
+    printf("Sending Main File...\n");
+    // send main file content
+    int num_bytes_send;
+    while (num_bytes_send = readFromFile(message_send, AL_DATA_SIZE))
+        if (!llwrite(message_send, AL_DATA_SIZE))
+            break;
+
+    printf("Main file was sent.\nSending End Command Packet...\n");
+
+    // Send End Command packet
+    packet_size = makeCtrlPacket(CTRL_START, message_send, filename, file_send_size);
+    llwrite(message_send, packet_size);
+
+    al_close_tx();
+    return 0;
+}
+
+int rcvFile()
+{
+
+    printf("Waiting for Start Command Packet...\n");
+    unsigned char message_rcv[AL_DATA_SIZE];
+    llread(message_rcv);
+
+    if (message_rcv[0] != CTRL_START)
+    {
+        printf("Expected Start Control Packet but got none.\n");
+        return -1;
+    }
+
+    int file_rcv_size;
+    char filename[MAXSIZE_FILE_NAME];
+    if (!parseCtrlPacket(message_rcv, &file_rcv_size, filename))
+    {
+        printf("Error parsing Start Command packet.\n");
+        return -1;
+    }
+
+    // create file where to write incoming contents
+    printf("Creating file '%s' of size '%d': %s\n", file_rcv_size);
+    al_open_rx(filename);
+
+    printf("Starting to write to file...\n");
+    int packet_size, num_bytes_rcv = 0;
+    while (1)
+    {
+        packet_size = llread(message_rcv);
+        // printf("\nWRITING=|%s|\n", message_rcv);
+        writeToFile(message_rcv, AL_DATA_SIZE);
+
+        num_bytes_rcv += packet_size * 8;
+
+        if (num_bytes_rcv == file_rcv_size)
+            break; // File is complete
+    }
+
+    printf("Write to file complete.\nWaiting for End Control Packet\n");
+
+    // Receive End Command Packet
+    llread(message_rcv);
+    if (message_rcv[0] != CTRL_END)
+    {
+        printf("Expected End Control Packet but got none.\n");
+        return -1;
+    }
+
+    int file_rcv_size_end;
+    char fileName_end[MAXSIZE_FILE_NAME];
+    if (!parseCtrlPacket(message_rcv, &file_rcv_size, filename))
+    {
+        printf("Error parsing End Command packet.\n");
+        return -1;
+    }
+
+    if (strcmp(filename, fileName_end) != 0)
+    {
+        printf("Filenames of start/end control packet dont match.\n");
+        return -1;
+    }
+
+    if (file_rcv_size != file_rcv_size_end)
+    {
+        printf("Filesize of start/end control packet dont match.\n");
+        return -1;
+    }
+
+    al_close_rx();
     return 0;
 }
 
@@ -126,6 +238,8 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
     LinkLayer connectionParameters = {"", LRole, baudRate, nTries, timeout};
     strcpy(connectionParameters.serialPort, serialPort);
 
+    printf("\n\nStart of program.\nAttempting to create connection...\n");
+
     // Open connection between TX and RX
     if (llopen(connectionParameters) < 0)
     {
@@ -133,80 +247,29 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
         return;
     }
 
+    printf("\nA connection was established.\n");
+
     if (connectionParameters.role == LlTx)
-    {
-        // open file to send
-        int file_send_size = al_open_tx(filename);
-        UNUSED(file_send_size);
-        unsigned char message_send[AL_DATA_SIZE];
-
-        // Send the Start Command packet
-        int packet_size = makeCtrlPacket(CTRL_START, message_send, filename, file_send_size);
-        readFromFile(message_send, packet_size);
-
-        // send main file content
-        int num_bytes_send;
-        while (num_bytes_send = readFromFile(message_send, AL_DATA_SIZE))
-            if (!llwrite(message_send, AL_DATA_SIZE))
-                break;
-
-        // Send End Command packet
-        packet_size = makeCtrlPacket(CTRL_START, message_send, filename, file_send_size);
-        readFromFile(message_send, packet_size);
-    }
-
-    if (connectionParameters.role == LlRx)
-    {
-
-        // Receive Start Command Packet
-        unsigned char message_rcv[AL_DATA_SIZE];
-        llread(message_rcv);
-
-        if (message_rcv[0] != CTRL_START)
-            return -1; // Start Command Packet wasnt parsed right by receiver
-
-        int file_rcv_size;
-        char fileName[MAXSIZE_FILE_NAME];
-        if (!parseCtrlPacket(message_rcv, &file_rcv_size, filename))
-            return -1; // Error Parsing Start Command packet
-
-        // create file where to write incoming contents
-        al_open_rx(filename);
-
-        //  write incoming contents to file
-        int packet_size, num_bytes_rcv = 0;
-        while (1)
+        if (sendFile(filename) < 0)
         {
-            packet_size = llread(message_rcv);
-            // printf("\nWRITING=|%s|\n", message_rcv);
-            writeToFile(message_rcv, AL_DATA_SIZE);
-
-            num_bytes_rcv += packet_size * 8;
-
-            if (num_bytes_rcv == file_rcv_size)
-                break; // File is complete
+            printf("File sending failed.\n");
+            return;
         }
 
-        // Receive End COmmand Packet
-        llread(message_rcv);
+    if (connectionParameters.role == LlRx)
+        if (rcvFile() < 0)
+        {
+            printf("File receiving failed.\n");
+            return;
+        }
 
-        if (message_rcv[0] != CTRL_END)
-            return -1; // END Command Packet wasnt parsed right by receiver
+    printf("File transfer complete. Starting to close connection...\n");
 
-        int file_rcv_size_end;
-        char fileName_end[MAXSIZE_FILE_NAME];
-        if (!parseCtrlPacket(message_rcv, &file_rcv_size, filename))
-            return -1; // Error Parsing Start Command packet
-
-        if (strcmp(fileName, fileName_end) != 0)
-            return -1; // Filenames of start/end control packet dont match
-
-        if (file_rcv_size != file_rcv_size_end)
-            return -1; // Filesize of start/end control packet dont match
-
-        al_close_rx();
+    if (llclose(1) < 0)
+    {
+        printf("The closing of the connection failed.\n");
+        return;
     }
 
-    // End Connection
-    llclose(1);
+    printf("End of program.\n");
 }

@@ -1,12 +1,7 @@
-// Link layer protocol implementation
-
 #include "link_layer.h"
 
 extern int (*set_state[])(unsigned char c);
 
-////////////////////////////////////////////////
-// LLOPEN
-////////////////////////////////////////////////
 int llopen(LinkLayer connectionParameters)
 {
     signal(SIGALRM, alarm_handler);
@@ -53,14 +48,13 @@ int llopen(LinkLayer connectionParameters)
     tcflush(fd, TCIOFLUSH);
 
     // Set new port settings
-
     if (tcsetattr(fd, TCSANOW, &newtio) == -1)
     {
         perror("tcsetattr");
         exit(-1);
     }
 
-    printf("New termios structure set\n");
+    // printf("New termios structure set\n");
 
     if (connectionParameters.role == LlRx)
     {
@@ -85,9 +79,6 @@ int llopen(LinkLayer connectionParameters)
     return 1;
 }
 
-////////////////////////////////////////////////
-// LLWRITE
-////////////////////////////////////////////////
 int llwrite(const unsigned char *buf, int bufSize)
 {
     static int w_packet = 0;
@@ -100,13 +91,13 @@ int llwrite(const unsigned char *buf, int bufSize)
         numTries++;
         ret = sendInformationFrame(fd, buf, bufSize, w_packet);
 
-        printf("\n---------------------------------------%d\n", ret);
+        printf("\n--------------------------------------|%d|%d\n", ret, numTries);
         if (ret == 0)
         {
             w_packet = (w_packet + 1) % 2;
             return 0; // TODO: para quê retornar o numero de bytes escritos ?
         }
-        if (ret < 0)
+        else if (ret < 0)
         {
             // WE already waited 12 seconds
             break;
@@ -117,9 +108,6 @@ int llwrite(const unsigned char *buf, int bufSize)
     return -1;
 }
 
-////////////////////////////////////////////////
-// LLREAD
-////////////////////////////////////////////////
 int llread(unsigned char *packet)
 {
     static int r_packet = 0;
@@ -149,9 +137,6 @@ int llread(unsigned char *packet)
     return 0; // TODO trocar por numbytes a ser lidos para packet
 }
 
-////////////////////////////////////////////////
-// LLCLOSE
-////////////////////////////////////////////////
 int llclose(int showStatistics)
 {
     if (is_tx())

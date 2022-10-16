@@ -46,7 +46,7 @@ int sendAndWaitMessage(int fd, unsigned char *msg, int messageSize)
 
             if (get_set_state() == EXIT_SET_STATE)
             {
-                printf("UA/RR/REJ/DISC RECIEVED");
+                printf("UA/RR/REJ/DISC RECIEVED\n");
                 // IF REJ IS RECIEVED WE DONT WANT TO WAIT 3 seconds ... that's why we directly go to the final state
                 break;
             }
@@ -128,19 +128,17 @@ int readMessageWithResponse(int fd)
             return -1;
         }
 
-        printf("rt:%d\n", rt);
+        printf("rt:%d | ", rt);
         set_set_state(set_lookup_transitions(st, rt));
 
         if (get_set_state() != 6)
-            printf("state:%d:%d:%c\n", get_set_state(), buf, buf);
+            printf(" state:%d:%d:%c\n", get_set_state(), buf, buf);
         else
-        {
-            printf("meSsage>|%c|\n", buf);
-        }
+            printf(" message>|%c|\n", buf);
 
         if (get_set_state() == EXIT_SET_STATE)
         {
-            printf("SET RECIEVED");
+            printf("SET RECIEVED\n");
             set_set_state(ENTRY_SET_STATE);
             alarm(0);
             if (get_control() == SET)
