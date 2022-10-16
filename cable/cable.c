@@ -62,7 +62,7 @@ void addNoiseToBuffer(unsigned char *buf, size_t errorIndex)
     buf[errorIndex] ^= 0xFF;
 }
 
-int main()
+int main(int argc, char *argv[])
 {
     printf("\n");
 
@@ -133,14 +133,9 @@ int main()
             }
             else
             {
-                static int count = 0;
                 if (cableMode == CableModeNoise)
                 {
-                    if (count % 2 == 0)
-                    {
-                        addNoiseToBuffer(tx2rx, 0);
-                    }
-                    count++;
+                    addNoiseToBuffer(tx2rx, 0);
                 }
 
                 int bytesToRx = write(fdRx, tx2rx, bytesFromTx);
@@ -159,14 +154,9 @@ int main()
             }
             else
             {
-                static int count = 0;
                 if (cableMode == CableModeNoise)
                 {
-                    if (count % 2 == 0)
-                    {
-                        addNoiseToBuffer(tx2rx, 0);
-                    }
-                    count++;
+                    addNoiseToBuffer(rx2tx, 0);
                 }
 
                 int bytesToTx = write(fdTx, rx2tx, bytesFromRx);

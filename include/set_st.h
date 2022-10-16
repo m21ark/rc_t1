@@ -63,7 +63,7 @@ void set_set_state(enum set_state_codes st);
 
 unsigned char get_control();
 int get_data_size();
-void get_data(unsigned char *dt);
+void get_data(unsigned char dt[]);
 
 static int tx_ready_to_send = 0;
 static int rx_RR = 0;

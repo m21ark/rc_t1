@@ -211,9 +211,10 @@ int get_data_size()
 {
     return data_size;
 }
-void get_data(unsigned char *dt)
+void get_data(unsigned char dt[])
 {
-    memcpy(sdata, dt, data_size);
+    // printf("\nDATA=|%s|\n", sdata);
+    memcpy(dt, sdata, data_size-1);
 }
 
 void set_tx_ready()

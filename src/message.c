@@ -42,7 +42,7 @@ int sendAndWaitMessage(int fd, unsigned char *msg, int messageSize)
             printf("rt:%d\n", rt);
             set_set_state(set_lookup_transitions(st, rt));
 
-            printf("state:%d:%d\n", get_set_state(), buf);
+            printf("state:%d:%d:%c\n", get_set_state(), buf, buf);
 
             if (get_set_state() == EXIT_SET_STATE)
             {
@@ -131,7 +131,12 @@ int readMessageWithResponse(int fd)
         printf("rt:%d\n", rt);
         set_set_state(set_lookup_transitions(st, rt));
 
-        printf("state:%d:%d\n", get_set_state(), buf);
+        if (get_set_state() != 6)
+            printf("state:%d:%d:%c\n", get_set_state(), buf, buf);
+        else
+        {
+            printf("meSsage>|%c|\n", buf);
+        }
 
         if (get_set_state() == EXIT_SET_STATE)
         {
