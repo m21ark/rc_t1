@@ -95,6 +95,7 @@ int llwrite(const unsigned char *buf, int bufSize)
         if (ret == 0)
         {
             w_packet = (w_packet + 1) % 2;
+            printf("\nW_PACKET ::: %d\n", w_packet);
             return 0; // TODO: para quê retornar o numero de bytes escritos ?
         }
         else if (ret < 0)
@@ -111,12 +112,15 @@ int llwrite(const unsigned char *buf, int bufSize)
 int llread(unsigned char *packet)
 {
     static int r_packet = 0;
-
+    set_rcv_packet_nr(r_packet);
     int r = readMessageWithResponse(fd);
 
-    if (r > 0)
-    {
+    if (r > 0) // if rcv occured in right order
+    {   
         r_packet = (r_packet + 1) % 2;
+        printf("\nRET = 0 ::: %d\n", r_packet);
+
+        ///sleep(4);
         unsigned char cmd[5] = {FLAG, ADDR_ER, RR(r_packet), BCC(ADDR_ER, RR(r_packet)), FLAG};
         write(fd, cmd, 5);
 

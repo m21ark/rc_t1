@@ -178,6 +178,8 @@ int sendFile(char *filename)
 
         if (llwrite(message_send, msg_size) < 0)
             return -1;
+        else
+            printf("\nAQUI ESTA UMA INVOCAÇAO\n");
 
         seqNum = (seqNum + 1) % SEQUENCE_MODULO;
     }
@@ -246,12 +248,13 @@ int rcvFile(char *filename)
         {
             int rcv_seqNum = parseDataPacket(message_rcv, data);
             printf("PACKET: %d\n", packet_size);
+            printf("PACKET NR : %d", rcv_seqNum);
             if (seqNum != rcv_seqNum)
             {
                 printf("Received packet out of order!\n Expected %d and recieved %d\n", seqNum, rcv_seqNum);
                 return -1;
             }
-
+            
             seqNum = (seqNum + 1) % SEQUENCE_MODULO;
 
             int data_size = packet_size - 4; // removing the 4 bytes for the data packet head
@@ -279,6 +282,7 @@ int rcvFile(char *filename)
     if (message_rcv[0] != CTRL_END)
     {
         printf("Expected End Control Packet but got none.\n");
+        printf("CTRL %d", message_rcv[0]);
         return -1;
     }
 
