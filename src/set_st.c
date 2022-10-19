@@ -93,6 +93,7 @@ int set_c_state(unsigned char c)
     }
 
     unsigned char validation = BCC(msg[1], msg[2]);
+    printf("HERE\n");
     if (memcmp(&c, &validation, 1) == 0)
     {
         ret = BCC_OK;
@@ -101,6 +102,8 @@ int set_c_state(unsigned char c)
         if (msg[2] == CTRL_S(1) || msg[2] == CTRL_S(0))
         {
             ret = INF_FRAME;
+            printf("reset OF 0\n");
+
             data_size = 0;
         }
     }
@@ -180,9 +183,9 @@ enum set_state_codes set_lookup_transitions(int cur_state, int rc)
         {c_rcv, INF_FRAME, data},
         {data, OTHER_RCV, data},
         {data, FLAG_RCV, stop},
-        {data, BCC2_NOT_OK, start}};
+        {data, BCC2_NOT_OK, flag_rcv}};
 
-    for (int i = 0; i < 17; i++)
+    for (int i = 0; i < 18; i++)
     {
         if (state_transitions[i].src_state == (unsigned)cur_state && state_transitions[i].ret_code == (unsigned)rc)
         {

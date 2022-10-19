@@ -4,7 +4,7 @@
 #define EXIT_SET_STATE stop
 #define ENTRY_SET_STATE start
 
-#define BUF_SIZE 2048
+#define BUF_SIZE 128
 
 #include "frame_defines.h"
 #include "utils.h"

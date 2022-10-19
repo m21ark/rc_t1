@@ -179,7 +179,7 @@ int sendFile(char *filename)
         if (llwrite(message_send, msg_size) < 0)
             return -1;
 
-        seqNum = (seqNum + 1)  % SEQUENCE_MODULO;
+        seqNum = (seqNum + 1) % SEQUENCE_MODULO;
     }
 
     printf("Main file was sent.\nSending End Command Packet...\n");
@@ -232,15 +232,23 @@ int rcvFile(char *filename)
     {
         packet_size = llread(message_rcv);
 
+        if (packet_size <= 0)
+        {
+            printf("Burros\n");
+            printf("REJ DATA!%d!\n", packet_size);
+            continue;
+        }
+
         if (message_rcv[0] == CTRL_END)
             break;
 
         else if (message_rcv[0] == CTRL_DATA)
         {
             int rcv_seqNum = parseDataPacket(message_rcv, data);
+            printf("PACKET: %d\n", packet_size);
             if (seqNum != rcv_seqNum)
             {
-                printf("Received packet out of order!\n");
+                printf("Received packet out of order!\n Expected %d and recieved %d\n", seqNum, rcv_seqNum);
                 return -1;
             }
 
@@ -257,11 +265,11 @@ int rcvFile(char *filename)
         }
 
         printf("\nPACKET_NR:: %d\n", seqNum);
-       //else
-       //{
-       //    printf("Received a packet without the data flag.\n");
-       //    return -1;
-       //}
+        // else
+        //{
+        //     printf("Received a packet without the data flag.\n");
+        //     return -1;
+        // }
     }
 
     printf("Write to file complete.\nWaiting for End Control Packet\n");

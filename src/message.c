@@ -118,14 +118,18 @@ int readMessageWithResponse(int fd)
     {
         bytes = read(fd, &buf, 1);
         if (bytes == 0)
+        {
             continue; // TODO :: Maybe put a Timerout to stop the app
+        }
+
         enum set_state_codes st = get_set_state();
         set_state_fun = set_state[st];
         enum set_ret_codes rt = set_state_fun(buf);
 
         if (rt == BCC2_NOT_OK)
         {
-            return -1;
+            printf("BCC2 Not ok...\n");
+        //    continue;
         }
 
         printf("rt:%d | ", rt);
@@ -145,6 +149,7 @@ int readMessageWithResponse(int fd)
             {
                 unsigned char cmd[5] = {FLAG, ADDR_ER, UA, BCC(ADDR_ER, UA), FLAG};
                 write(fd, cmd, 5);
+                printf("Sent a SET");
             }
             else if (get_control() == CTRL_S(0) || get_control() == CTRL_S(1))
             {
@@ -166,4 +171,3 @@ int readMessageWithResponse(int fd)
     alarm(0);
     return -1;
 }
-

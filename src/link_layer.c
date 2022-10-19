@@ -119,17 +119,19 @@ int llread(unsigned char *packet)
         r_packet = (r_packet + 1) % 2;
         unsigned char cmd[5] = {FLAG, ADDR_ER, RR(r_packet), BCC(ADDR_ER, RR(r_packet)), FLAG};
         write(fd, cmd, 5);
-        
-        return get_data(packet) ;
+
+        return get_data(packet);
     }
     else if (r < 0)
     {
         unsigned char cmd[5] = {FLAG, ADDR_ER, REJ(r_packet), BCC(ADDR_ER, REJ(r_packet)), FLAG};
         write(fd, cmd, 5);
+        printf("Burros2\n");
         printf("\nREJ\n");
-        return 0;
+        return -1;
     }
 
+    printf("LL read return 0\n");
     return 0;
 }
 
