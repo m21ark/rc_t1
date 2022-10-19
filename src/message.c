@@ -96,8 +96,12 @@ int sendInformationFrame(int fd, const unsigned char *data, int dataSize, int pa
     if (ret > 0 && ((packet == 0 && c == RR(1)) || (packet == 1 && c == RR(0))))
     {
         return 0;
-    }
+    } 
 
+    // else if (ret > 0 && ((packet == 0 && c == RR(0)) || (packet == 1 && c == RR(1))))
+    // {
+    //     printf("\nRKRKRKRKRKKRKRKRKRKR\n");
+    // }
     if (ret < 0)
     {
         return -1; // The number of restranmissions was exceeded
@@ -153,6 +157,15 @@ int readMessageWithResponse(int fd)
             }
             else if (get_control() == CTRL_S(0) || get_control() == CTRL_S(1))
             {
+                if (get_control() != CTRL_S(rcv_paket_nr))
+                {
+                    printf ("OH BLODY HELL \n");
+                    unsigned char cmd[5] = {FLAG, ADDR_ER, RR(rcv_paket_nr), BCC(ADDR_ER, RR(rcv_paket_nr)), FLAG};
+                    write(fd, cmd, 5);
+
+                    continue;
+                }
+                printf("okay, lets go \n");
                 return get_data_size();
             }
             else if (get_control() == DISC)
@@ -171,3 +184,8 @@ int readMessageWithResponse(int fd)
     alarm(0);
     return -1;
 }
+
+void set_rcv_packet_nr(int rcv_paket) {
+    rcv_paket_nr = rcv_paket; 
+}
+
