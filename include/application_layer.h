@@ -6,8 +6,8 @@
 
 // 60 64
 // 256 252
-#define MAXSIZE_DATA 1024 // Max size of AL Data Packet
-#define MAXSIZE_FRAME 2400 // Max size of Individual Frame
+#define MAXSIZE_DATA 250 // Max size of AL Data Packet
+#define MAXSIZE_FRAME 504 // Max size of Individual Frame
 // FRAME > DATA ? MAXSIZE_FRAME = MAXSIZE_DATA + 4
 
 #define SEQUENCE_MODULO 16 // packet sending rotation to know if out of order

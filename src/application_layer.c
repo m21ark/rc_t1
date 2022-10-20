@@ -236,7 +236,6 @@ int rcvFile(char *filename)
 
         if (packet_size <= 0)
         {
-            printf("Burros\n");
             printf("REJ DATA!%d!\n", packet_size);
             continue;
         }

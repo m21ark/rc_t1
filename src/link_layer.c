@@ -130,7 +130,6 @@ int llread(unsigned char *packet)
     {
         unsigned char cmd[5] = {FLAG, ADDR_ER, REJ(r_packet), BCC(ADDR_ER, REJ(r_packet)), FLAG};
         write(fd, cmd, 5);
-        printf("Burros2\n");
         printf("\nREJ\n");
         return -1;
     }
@@ -150,9 +149,10 @@ int llclose(int showStatistics)
         {
             return -1;
         }
-
+        printf("HOW U DOING ? \n");
         unsigned char ua_cmd[5] = {FLAG, ADDR_ER, UA, BCC(ADDR_ER, UA), FLAG};
         write(fd, ua_cmd, 5);
+        sleep(1);
     }
     else if (is_rx())
     {
