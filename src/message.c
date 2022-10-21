@@ -1,4 +1,4 @@
-#include "../include/message.h"
+#include "message.h"
 
 extern int (*set_state[])(unsigned char c);
 static int (*set_state_fun)(unsigned char c);
@@ -96,7 +96,7 @@ int sendInformationFrame(int fd, const unsigned char *data, int dataSize, int pa
     if (ret > 0 && ((packet == 0 && c == RR(1)) || (packet == 1 && c == RR(0))))
     {
         return 0;
-    } 
+    }
 
     // else if (ret > 0 && ((packet == 0 && c == RR(0)) || (packet == 1 && c == RR(1))))
     // {
@@ -133,7 +133,7 @@ int readMessageWithResponse(int fd)
         if (rt == BCC2_NOT_OK)
         {
             printf("BCC2 Not ok...\n");
-        //    continue;
+            //    continue;
         }
 
         printf("rt:%d | ", rt);
@@ -159,7 +159,7 @@ int readMessageWithResponse(int fd)
             {
                 if (get_control() != CTRL_S(rcv_paket_nr))
                 {
-                    printf ("OH BLODY HELL \n");
+                    printf("OH BLODY HELL \n");
                     unsigned char cmd[5] = {FLAG, ADDR_ER, RR(rcv_paket_nr), BCC(ADDR_ER, RR(rcv_paket_nr)), FLAG};
                     write(fd, cmd, 5);
 
@@ -185,7 +185,7 @@ int readMessageWithResponse(int fd)
     return -1;
 }
 
-void set_rcv_packet_nr(int rcv_paket) {
-    rcv_paket_nr = rcv_paket; 
+void set_rcv_packet_nr(int rcv_paket)
+{
+    rcv_paket_nr = rcv_paket;
 }
-

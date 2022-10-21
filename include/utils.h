@@ -1,8 +1,8 @@
 #ifndef _RCOM_UTILS_H
 #define _RCOM_UTILS_H
 
-#include "frame_defines.h"
-#include "stdio.h"
+#include <stdio.h>
+#include "macros.h"
 
 int countProblematicFlags(unsigned char *data, int dataSize);
 
@@ -12,4 +12,4 @@ int unstuffData(unsigned char *data, int dataSize, unsigned char *stData);
 
 unsigned char BCC2(const unsigned char *data, int dataSize);
 
-#endif
+#endif // _RCOM_UTILS_H

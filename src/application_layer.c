@@ -1,5 +1,3 @@
-// Application layer protocol implementation
-
 #include "application_layer.h"
 
 FILE *fp_tx = NULL;
@@ -253,7 +251,7 @@ int rcvFile(char *filename)
                 printf("Received packet out of order!\n Expected %d and recieved %d\n", seqNum, rcv_seqNum);
                 return -1;
             }
-            
+
             seqNum = (seqNum + 1) % SEQUENCE_MODULO;
 
             int data_size = packet_size - 4; // removing the 4 bytes for the data packet head

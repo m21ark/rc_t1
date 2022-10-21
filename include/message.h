@@ -5,8 +5,9 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
+
 #include "set_st.h"
-#include "frame_defines.h"
+#include "macros.h"
 #include "utils.h"
 
 static int rcv_paket_nr = 0;
@@ -21,4 +22,4 @@ int readMessageWithResponse(int fd);
 
 void set_rcv_packet_nr(int rcv_paket);
 
-#endif
+#endif // _RCOM_MESSAGE_H_

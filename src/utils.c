@@ -1,4 +1,4 @@
-#include "../include/utils.h"
+#include "utils.h"
 
 int countProblematicFlags(unsigned char *data, int dataSize)
 {

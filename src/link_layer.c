@@ -116,11 +116,11 @@ int llread(unsigned char *packet)
     int r = readMessageWithResponse(fd);
 
     if (r > 0) // if rcv occured in right order
-    {   
+    {
         r_packet = (r_packet + 1) % 2;
         printf("\nRET = 0 ::: %d\n", r_packet);
 
-        ///sleep(4);
+        /// sleep(4);
         unsigned char cmd[5] = {FLAG, ADDR_ER, RR(r_packet), BCC(ADDR_ER, RR(r_packet)), FLAG};
         write(fd, cmd, 5);
 

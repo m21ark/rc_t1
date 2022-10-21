@@ -9,6 +9,8 @@
         "stdio.h": "c",
         "frame_defines.h": "c",
         "link_layer.h": "c",
-        "application_layer.h": "c"
+        "application_layer.h": "c",
+        "string.h": "c",
+        "macros.h": "c"
     }
 }
