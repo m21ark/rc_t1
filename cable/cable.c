@@ -12,6 +12,7 @@
 #include <sys/stat.h>
 #include <termios.h>
 #include <unistd.h>
+#include <time.h>
 
 // Baudrate settings are defined in <asm/termbits.h>, which is
 // included by <termios.h>
@@ -59,13 +60,25 @@ int openSerialPort(const char *serialPort, struct termios *oldtio, struct termio
 // Add noise to a buffer, by flipping the byte in the "errorIndex" position.
 void addNoiseToBuffer(unsigned char *buf, size_t errorIndex)
 {
-    buf[errorIndex] ^= 0xFF;
+    int random_number = rand() % 100 + 1;
+    if (random_number < 50)
+    {
+        buf[errorIndex] ^= 0xFF;
+    }
+    else if (random_number < 30)
+    {
+        buf[errorIndex] ^= 0xA0;
+    }
+    else if (random_number < 20)
+    {
+        buf[errorIndex] ^= 0x0A;
+    }
 }
 
 int main(/*int argc, char *argv[]*/)
 {
     printf("\n");
-
+    srand(time(NULL));
     system("socat -dd PTY,link=/dev/ttyS10,mode=777 PTY,link=/dev/emulatorTx,mode=777 &");
     sleep(1);
     printf("\n");

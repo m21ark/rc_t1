@@ -11,6 +11,11 @@ void alarm_handler()
     alarm_flag = 1;
 }
 
+void set_rcv_packet_nr(int rcv_paket)
+{
+    rcv_paket_nr = rcv_paket;
+}
+
 int sendAndWaitMessage(int fd, unsigned char *msg, int messageSize)
 {
     int numTries = 0;
@@ -20,12 +25,11 @@ int sendAndWaitMessage(int fd, unsigned char *msg, int messageSize)
 
     do
     {
-        numTries++;
         alarm_flag = 0;
 
         ret = write(fd, msg, messageSize);
-        printf("\nConnection attempt number %d\n", numTries);
-        alarm(3);
+        printf("\nAttempt to send messsage nº%d\n", ++numTries);
+        SET_ALARM_TIME(REATTEMPT_WAIT_TIME)
 
         unsigned char buf = 0;
         unsigned char bytes;
@@ -40,10 +44,10 @@ int sendAndWaitMessage(int fd, unsigned char *msg, int messageSize)
             set_state_fun = set_state[st];
             enum set_ret_codes rt = set_state_fun(buf);
 
-            printf("rt:%d\n", rt);
+            DEBUG_PRINT("rt:%d\n", rt);
             set_set_state(set_lookup_transitions(st, rt));
 
-            printf("state:%d:%d:%c\n", get_set_state(), buf, buf);
+            DEBUG_PRINT("state:%d:%d:%c\n", get_set_state(), buf, buf);
 
             if (get_set_state() == EXIT_SET_STATE)
             {
@@ -55,7 +59,7 @@ int sendAndWaitMessage(int fd, unsigned char *msg, int messageSize)
 
     } while (numTries < 3 && get_set_state() != EXIT_SET_STATE);
 
-    alarm(0);
+    TURN_OFF_ALARM
 
     if (get_set_state() != EXIT_SET_STATE)
     {
@@ -63,8 +67,8 @@ int sendAndWaitMessage(int fd, unsigned char *msg, int messageSize)
         ret = -1;
     }
 
+    DEBUG_PRINT("Setting State to EntryState\n");
     set_set_state(ENTRY_SET_STATE);
-
     return ret;
 }
 
@@ -96,19 +100,17 @@ int sendInformationFrame(int fd, const unsigned char *data, int dataSize, int pa
     unsigned char c = get_control();
     if (ret > 0 && ((packet == 0 && c == RR(1)) || (packet == 1 && c == RR(0))))
     {
+        DEBUG_PRINT("Everything ok");
         return 0;
     }
-
-    // else if (ret > 0 && ((packet == 0 && c == RR(0)) || (packet == 1 && c == RR(1))))
-    // {
-    //     printf("\nRKRKRKRKRKKRKRKRKRKR\n");
-    // }
     if (ret < 0)
     {
-        return -1; // The number of restranmissions was exceeded
+        DEBUG_PRINT("Number of restranmissions was exceeded");
+        return -1;
     }
 
-    return 1; // THIS IS THE CASE IN WHICH A REJ WAS RECEIVED
+    DEBUG_PRINT(" REJ WAS RECEIVED");
+    return 1;
 }
 
 int readMessageWithResponse(int fd)
@@ -116,7 +118,7 @@ int readMessageWithResponse(int fd)
     unsigned char buf = 0;
     unsigned char bytes;
 
-    alarm(12); // TODO MAKE A MACRO
+    SET_ALARM_TIME(MAX_IDLE_TIME)
     alarm_flag = 0;
 
     while (!alarm_flag) // SEE THIS LATTER :: É importante uma vez que assim fica a ler lixo quando à barulho
@@ -124,7 +126,8 @@ int readMessageWithResponse(int fd)
         bytes = read(fd, &buf, 1);
         if (bytes == 0)
         {
-            continue; // TODO :: Maybe put a Timerout to stop the app
+            DEBUG_PRINT("Nothing was read\n");
+            continue;
         }
 
         enum set_state_codes st = get_set_state();
@@ -133,48 +136,51 @@ int readMessageWithResponse(int fd)
 
         if (rt == BCC2_NOT_OK)
         {
-            printf("BCC2 Not ok...\n");
-            //    continue;
+            DEBUG_PRINT("BCC2 Not ok...\n");
         }
 
-        printf("rt:%d | ", rt);
         set_set_state(set_lookup_transitions(st, rt));
 
         if (get_set_state() != 6)
-            printf(" state:%d:%d:%c\n", get_set_state(), buf, buf);
+        {
+            DEBUG_PRINT("rt:%d | state:%d:%d:%c\n", rt, get_set_state(), buf, buf);
+        }
         else
-            printf(" message>|%c|\n", buf);
+        {
+            DEBUG_PRINT(" message>|%c|\n", buf);
+        }
 
         if (get_set_state() == EXIT_SET_STATE)
         {
-            printf("SET RECIEVED\n");
+            DEBUG_PRINT("SET RECIEVED\n");
             set_set_state(ENTRY_SET_STATE);
-            alarm(0);
+            TURN_OFF_ALARM
             if (get_control() == SET)
             {
                 unsigned char cmd[5] = {FLAG, ADDR_ER, UA, BCC(ADDR_ER, UA), FLAG};
                 write(fd, cmd, 5);
-                printf("Sent a SET");
+                DEBUG_PRINT("Sent a SET");
             }
             else if (get_control() == CTRL_S(0) || get_control() == CTRL_S(1))
             {
                 if (get_control() != CTRL_S(rcv_paket_nr))
                 {
-                    printf("OH BLODY HELL \n");
+                    DEBUG_PRINT("OH BLODY HELL \n");
                     unsigned char cmd[5] = {FLAG, ADDR_ER, RR(rcv_paket_nr), BCC(ADDR_ER, RR(rcv_paket_nr)), FLAG};
                     write(fd, cmd, 5);
 
                     continue;
                 }
-                printf("okay, lets go \n");
+                DEBUG_PRINT("okay, lets go\n");
                 return get_data_size();
             }
             else if (get_control() == DISC)
             {
-                printf("\nDISC\n");
+                DEBUG_PRINT("DISC recieved\n");
                 unsigned char cmd[5] = {FLAG, ADDR_ER, DISC, BCC(ADDR_ER, DISC), FLAG};
                 if (sendAndWaitMessage(fd, cmd, 5) < 0)
                 {
+                    DEBUG_PRINT("Final UA from Tx wasnt received correctly\n");
                     return -1;
                 }
             }
@@ -182,11 +188,7 @@ int readMessageWithResponse(int fd)
         }
     }
 
-    alarm(0);
+    DEBUG_PRINT("Returning -1\n");
+    TURN_OFF_ALARM
     return -1;
-}
-
-void set_rcv_packet_nr(int rcv_paket)
-{
-    rcv_paket_nr = rcv_paket;
 }

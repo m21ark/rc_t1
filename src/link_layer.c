@@ -49,7 +49,10 @@ int llopen(LinkLayer connectionParameters)
     if (connectionParameters.role == LlRx)
     {
         if (readMessageWithResponse(fd) < 0)
+        {
+            DEBUG_PRINT("Connection attempt to rx failed\n");
             return -1;
+        }
 
         set_rx_ready();
     }
@@ -59,41 +62,44 @@ int llopen(LinkLayer connectionParameters)
         unsigned char cmd[5] = {FLAG, ADDR_ER, SET, BCC(ADDR_ER, SET), FLAG};
 
         if (sendAndWaitMessage(fd, cmd, 5) < 0)
+        {
+            DEBUG_PRINT("Connection attempt to tx failed\n");
             return -1;
+        }
 
         set_tx_ready();
     }
 
-    return 1;
+    return 1; // shouldnt be zero?
 }
 
 int llwrite(const unsigned char *buf, int bufSize)
 {
     static int w_packet = 0;
-
-    int ret;
-    int numTries = 0;
+    int numTries = 0, ret;
 
     do
-    { 
+    {
         numTries++;
         ret = sendInformationFrame(fd, buf, bufSize, w_packet);
 
-        printf("\n--------------------------------------|%d|%d\n", ret, numTries);
+        DEBUG_PRINT("\n--------------------------------------|%d|%d\n", ret, numTries);
         if (ret == 0)
         {
             w_packet = (w_packet + 1) % 2;
-            printf("\nW_PACKET ::: %d\n", w_packet);
+            DEBUG_PRINT("\nW_PACKET ::: %d\n", w_packet);
             return 0; // TODO: para quê retornar o numero de bytes escritos ?
         }
         else if (ret < 0)
         {
             // WE already waited 12 seconds
+            DEBUG_PRINT("Already waited 12s. Stop trying to send msg.\n");
             break;
         }
 
     } while (numTries < 3);
 
+    DEBUG_PRINT("llwrite returned -1\n");
     return -1;
 }
 
@@ -106,62 +112,69 @@ int llread(unsigned char *packet)
     if (r > 0) // if rcv occured in right order
     {
         r_packet = (r_packet + 1) % 2;
-        printf("\nRET = 0 ::: %d\n", r_packet);
+        DEBUG_PRINT("readMessage > 0 with r_packet= %d\n", r_packet);
 
-        /// sleep(4);
         unsigned char cmd[5] = {FLAG, ADDR_ER, RR(r_packet), BCC(ADDR_ER, RR(r_packet)), FLAG};
         write(fd, cmd, 5);
 
+        DEBUG_PRINT("Returning data from packet\n");
         return get_data(packet);
     }
     else if (r < 0)
     {
         unsigned char cmd[5] = {FLAG, ADDR_ER, REJ(r_packet), BCC(ADDR_ER, REJ(r_packet)), FLAG};
         write(fd, cmd, 5);
-        printf("\nREJ\n");
+        DEBUG_PRINT("REJ was sent\n");
         return -1;
     }
 
-    printf("LL read return 0\n");
+    DEBUG_PRINT("LL read return 0\n");
     return 0;
 }
 
 int llclose(int showStatistics)
 {
+    UNUSED(showStatistics); // TODO -> Fazer a analise dos dados
+
+    // Transmitter closing
     if (is_tx())
     {
-        printf("\nTX\n");
+        DEBUG_PRINT("TX Closing...\n");
         unsigned char cmd[5] = {FLAG, ADDR_ER, DISC, BCC(ADDR_ER, DISC), FLAG};
 
         if (sendAndWaitMessage(fd, cmd, 5) < 0)
         {
+            DEBUG_PRINT("llclose tx await for response failed");
             return -1;
         }
-        printf("HOW U DOING ? \n");
+
+        DEBUG_PRINT("Tx sending final UA to close\n");
         unsigned char ua_cmd[5] = {FLAG, ADDR_ER, UA, BCC(ADDR_ER, UA), FLAG};
         write(fd, ua_cmd, 5);
         sleep(1);
     }
-    else if (is_rx())
-    {
-        printf("\nRX\n");
 
+    // Receiver closing
+    if (is_rx())
+    {
+        DEBUG_PRINT("RX Closing...\n");
         int r = readMessageWithResponse(fd);
 
         if (r < 0)
         {
+            DEBUG_PRINT("Rx llclose read message failed\n");
             return -1;
         }
     }
 
-    UNUSED(showStatistics);
+    // Recover old serial port settings
     if (tcsetattr(fd, TCSANOW, &oldtio) == -1)
     {
         perror("tcsetattr");
         exit(-1);
     }
 
+    DEBUG_PRINT("closing file descriptor\n");
     close(fd);
-
-    return 1;
+    return 0;
 }

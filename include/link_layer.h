@@ -16,12 +16,20 @@
 #include "macros.h"
 #include "set_st.h"
 
+/**
+ * @brief Possible roles for the serial port are Rx (Reciever) and Tx (Transmitter)
+ *
+ */
 typedef enum
 {
     LlTx,
     LlRx,
 } LinkLayerRole;
 
+/**
+ * @brief Struct that holds serial port settings
+ *
+ */
 typedef struct
 {
     char serialPort[50];
@@ -31,24 +39,40 @@ typedef struct
     int timeout;
 } LinkLayer;
 
-struct termios oldtio;
-int fd;
+struct termios oldtio; // struct to store old serial port settings to allow settings reverting at llclose
+int fd;                // global file descriptor used by the serial port
 
-// Open a connection using the "port" parameters defined in struct linkLayer.
-// Return "1" on success or "-1" on error.
+/**
+ * @brief Open a connection using the "port" parameters defined in struct linkLayer.
+ *
+ * @param connectionParameters serial port parameters to be set
+ * @return Return "1" on success or "-1" on error.
+ */
 int llopen(LinkLayer connectionParameters);
 
-// Send data in buf with size bufSize.
-// Return number of chars written, or "-1" on error.
+/**
+ * @brief Send data in buf with size bufSize
+ *
+ * @param buf buffer containing message to be sent
+ * @param bufSize size of message being sent
+ * @return Return number of chars written, or "-1" on error.
+ */
 int llwrite(const unsigned char *buf, int bufSize);
 
-// Receive data in packet.
-// Return number of chars read, or "-1" on error.
+/**
+ * @brief Receive data in packet.
+ *
+ * @param packet message to be read
+ * @return Return number of chars read, or "-1" on error.
+ */
 int llread(unsigned char *packet);
 
-// Close previously opened connection.
-// if showStatistics == TRUE, link layer should print statistics in the console on close.
-// Return "1" on success or "-1" on error.
+/**
+ * @brief Close previously opened connection.
+ *
+ * @param showStatistics if TRUE, link layer should print statistics in the console on close.
+ * @return Return "1" on success or "-1" on error.
+ */
 int llclose(int showStatistics);
 
 #endif // _LINK_LAYER_H_

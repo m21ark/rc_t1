@@ -96,7 +96,7 @@ int set_c_state(unsigned char c)
     }
 
     unsigned char validation = BCC(msg[1], msg[2]);
-    printf("HERE\n");
+
     if (memcmp(&c, &validation, 1) == 0)
     {
         ret = BCC_OK;
@@ -105,8 +105,7 @@ int set_c_state(unsigned char c)
         if (msg[2] == CTRL_S(1) || msg[2] == CTRL_S(0))
         {
             ret = INF_FRAME;
-            printf("reset OF 0\n");
-
+            DEBUG_PRINT("data_size reset OF 0\n");
             data_size = 0;
         }
     }

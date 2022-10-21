@@ -175,11 +175,20 @@ int sendFile(const char *filename)
         int msg_size = makeDataPacket(message_send, seqNum, data, num_read_bytes);
 
         if (llwrite(message_send, msg_size) < 0)
+        {
+            DEBUG_PRINT("llwrite returned < 0\n");
             return -1;
+        }
         else
-            printf("\nAQUI ESTA UMA INVOCAÇAO\n");
+        {
+            DEBUG_PRINT("llwrite returned > 0\n");
+        }
 
         seqNum = (seqNum + 1) % SEQUENCE_MODULO;
+
+        #ifdef SLOW_SEND
+                sleep(1);
+        #endif
     }
 
     printf("Main file was sent.\nSending End Command Packet...\n");
@@ -194,6 +203,7 @@ int sendFile(const char *filename)
     }
 
     al_close_tx();
+    DEBUG_PRINT("sendFile is returning 0");
     return 0;
 }
 
@@ -228,13 +238,14 @@ int rcvFile(const char *filename)
 
     printf("Starting to write to file...\n");
     int packet_size, num_bytes_rcv = 0, seqNum = 0;
+    float percentageLevel;
     while (1)
     {
         packet_size = llread(message_rcv);
 
         if (packet_size <= 0)
         {
-            printf("REJ DATA!%d!\n", packet_size);
+            printf("Sent a REJ | packet_size= %d\n", packet_size);
             continue;
         }
 
@@ -244,8 +255,9 @@ int rcvFile(const char *filename)
         else if (message_rcv[0] == CTRL_DATA)
         {
             int rcv_seqNum = parseDataPacket(message_rcv, data);
-            printf("PACKET: %d\n", packet_size);
-            printf("PACKET NR : %d", rcv_seqNum);
+
+            DEBUG_PRINT("PACKET: %d\nPACKET NR : %d", packet_size, rcv_seqNum);
+
             if (seqNum != rcv_seqNum)
             {
                 printf("Received packet out of order!\n Expected %d and recieved %d\n", seqNum, rcv_seqNum);
@@ -258,18 +270,14 @@ int rcvFile(const char *filename)
             writeToFile(data, data_size);    // writing data bytes to file
 
             num_bytes_rcv += data_size;
-            printf("Current progress: %d/%d\n", num_bytes_rcv, file_rcv_size);
+            percentageLevel = (float)num_bytes_rcv / (file_rcv_size)*100;
+            printf("Current progress: %d/%d (%0.1f%%)\n", num_bytes_rcv, file_rcv_size, percentageLevel);
 
             if (num_bytes_rcv == file_rcv_size)
                 break; // File is complete
         }
 
-        printf("\nPACKET_NR:: %d\n", seqNum);
-        // else
-        //{
-        //     printf("Received a packet without the data flag.\n");
-        //     return -1;
-        // }
+        DEBUG_PRINT("\nPACKET_NR:: %d\n", seqNum);
     }
 
     printf("Write to file complete.\nWaiting for End Control Packet\n");
@@ -350,6 +358,10 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
     {
         printf("The closing of the connection failed.\n");
         return;
+    }
+    else
+    {
+        printf("Connection closed.\n");
     }
 
     printf("End of program.\n");

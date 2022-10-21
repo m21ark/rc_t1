@@ -3,7 +3,7 @@
 
 # Parameters
 CC = gcc
-CFLAGS = -Wall -Wextra
+CFLAGS = -Wall -Wextra # -D DEBUG # -D SLOW_SEND
 
 SRC = src/
 INCLUDE = include/

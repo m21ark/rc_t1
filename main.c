@@ -12,7 +12,7 @@
 //   $3: filename
 int main(int argc, char *argv[])
 {
-    DEBUG_PRINT("Debug Mode Active: %d\n", 4);
+    DEBUG_PRINT("\nDEBUG MODE ACTIVE\n");
 
     if (argc < 4)
     {
