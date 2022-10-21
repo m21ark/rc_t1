@@ -16,8 +16,6 @@ int llopen(LinkLayer connectionParameters)
         exit(-1);
     }
 
-    struct termios newtio;
-
     // Save current port settings
     if (tcgetattr(fd, &oldtio) == -1)
     {
@@ -25,26 +23,18 @@ int llopen(LinkLayer connectionParameters)
         exit(-1);
     }
 
+    struct termios newtio;
+
     // Clear struct for new port settings
     memset(&newtio, 0, sizeof(newtio));
 
     newtio.c_cflag = BAUDRATE | CS8 | CLOCAL | CREAD;
     newtio.c_iflag = IGNPAR;
     newtio.c_oflag = 0;
-
-    // Set input mode (non-canonical, no echo,...)
     newtio.c_lflag = 0;
-    newtio.c_cc[VTIME] = 1; // Inter-character timer unused
+    newtio.c_cc[VTIME] = 1;
     newtio.c_cc[VMIN] = 0;
 
-    // VTIME e VMIN should be changed in order to protect with a
-    // timeout the reception of the following character(s)
-
-    // Now clean the line and activate the settings for the port
-    // tcflush() discards data written to the object referred to
-    // by fd but not transmitted, or data received but not read,
-    // depending on the value of queue_selector:
-    //   TCIFLUSH - flushes data received but not read.
     tcflush(fd, TCIOFLUSH);
 
     // Set new port settings
@@ -54,14 +44,13 @@ int llopen(LinkLayer connectionParameters)
         exit(-1);
     }
 
-    // printf("New termios structure set\n");
+    // Set up the connection between Tx and Rx
 
     if (connectionParameters.role == LlRx)
     {
         if (readMessageWithResponse(fd) < 0)
-        {
             return -1;
-        }
+
         set_rx_ready();
     }
 
@@ -70,9 +59,8 @@ int llopen(LinkLayer connectionParameters)
         unsigned char cmd[5] = {FLAG, ADDR_ER, SET, BCC(ADDR_ER, SET), FLAG};
 
         if (sendAndWaitMessage(fd, cmd, 5) < 0)
-        {
             return -1;
-        }
+
         set_tx_ready();
     }
 
@@ -87,7 +75,7 @@ int llwrite(const unsigned char *buf, int bufSize)
     int numTries = 0;
 
     do
-    { // DISCUTIR COM O STOR ::: SE RECEBER REJECT DEVO REPETIR 3 VEZES OU ISSO JÁ CONTA COMO UMA E SO TENHO MAIS DUAS TRANS. ?
+    { 
         numTries++;
         ret = sendInformationFrame(fd, buf, bufSize, w_packet);
 

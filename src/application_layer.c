@@ -27,17 +27,17 @@ void al_open_rx(const char *filename_rx)
     fp_rx = fopen(filename_rx, "w");
 }
 
-int readFromFile(char *message_send, unsigned msg_size)
+int readFromFile(unsigned char *message_send, unsigned msg_size)
 {
     return fread(message_send, 1, msg_size, fp_tx);
 }
 
-int writeToFile(char *message_rcv, unsigned msg_size)
+int writeToFile(unsigned char *message_rcv, unsigned msg_size)
 {
     return fwrite(message_rcv, msg_size, 1, fp_rx);
 }
 
-int makeCtrlPacket(unsigned char ctrlByte, unsigned char *packet, char *filename, int filesize)
+int makeCtrlPacket(unsigned char ctrlByte, unsigned char *packet, const char *filename, int filesize)
 {
 
     packet[0] = ctrlByte;
@@ -150,7 +150,7 @@ int parseDataPacket(unsigned char *packet, unsigned char *data)
     return packet[1];
 }
 
-int sendFile(char *filename)
+int sendFile(const char *filename)
 {
 
     printf("Opening file to be sent...\n");
@@ -169,7 +169,7 @@ int sendFile(char *filename)
 
     printf("Sending Main File...\n");
     int seqNum = 0, num_read_bytes;
-    while (num_read_bytes = readFromFile(data, MAXSIZE_DATA))
+    while ((num_read_bytes = readFromFile(data, MAXSIZE_DATA)))
     {
 
         int msg_size = makeDataPacket(message_send, seqNum, data, num_read_bytes);
@@ -197,7 +197,7 @@ int sendFile(char *filename)
     return 0;
 }
 
-int rcvFile(char *filename)
+int rcvFile(const char *filename)
 {
 
     printf("Waiting for Start Command Packet...\n");

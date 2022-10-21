@@ -10,8 +10,6 @@
 #include "macros.h"
 #include "utils.h"
 
-static int rcv_paket_nr = 0;
-
 int sendAndWaitMessage(int fd, unsigned char *msg, int messageSize);
 
 void alarm_handler();

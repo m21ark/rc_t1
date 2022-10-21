@@ -62,7 +62,7 @@ void addNoiseToBuffer(unsigned char *buf, size_t errorIndex)
     buf[errorIndex] ^= 0xFF;
 }
 
-int main(int argc, char *argv[])
+int main(/*int argc, char *argv[]*/)
 {
     printf("\n");
 

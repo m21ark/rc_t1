@@ -15,7 +15,6 @@
 #include "message.h"
 #include "macros.h"
 #include "set_st.h"
-#include "message.h"
 
 typedef enum
 {

@@ -23,11 +23,11 @@ int al_open_tx(const char *filename_tx);
 
 void al_open_rx(const char *filename_rx);
 
-int readFromFile(char *message_send, unsigned msg_size);
+int readFromFile(unsigned char *message_send, unsigned msg_size);
 
-int writeToFile(char *message_rcv, unsigned msg_size);
+int writeToFile(unsigned char *message_rcv, unsigned msg_size);
 
-int makeCtrlPacket(unsigned char ctrlByte, unsigned char *packet, char *filename, int filesize);
+int makeCtrlPacket(unsigned char ctrlByte, unsigned char *packet, const char *filename, int filesize);
 
 int parseCtrlPacket(unsigned char *packetBuffer, int *fileSize, char *fileName);
 
@@ -35,11 +35,10 @@ int makeDataPacket(unsigned char *packet, int seqNum, unsigned char *data, int d
 
 int parseDataPacket(unsigned char *packet, unsigned char *data);
 
-int sendFile(char *filename);
+int sendFile(const char *filename);
 
-int rcvFile(char *filename);
+int rcvFile(const char *filename);
 
-void applicationLayer(const char *serialPort, const char *role, int baudRate,
-                      int nTries, int timeout, const char *filename);
+void applicationLayer(const char *serialPort, const char *role, int baudRate, int nTries, int timeout, const char *filename);
 
 #endif // _APPLICATION_LAYER_H_

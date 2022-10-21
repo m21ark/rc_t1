@@ -7,6 +7,9 @@ static unsigned char sdata[BUF_SIZE];
 static int data_size = 0;
 static enum set_state_codes set_cur_state = ENTRY_SET_STATE;
 
+static int tx_ready_to_send = 0;
+static int rx_RR = 0;
+
 int (*set_state[])(unsigned char c) = {
     set_entry_state, set_flag_state, set_a_state, set_c_state, set_bcc_state, set_stop_state, set_data_state};
 

@@ -4,6 +4,7 @@ extern int (*set_state[])(unsigned char c);
 static int (*set_state_fun)(unsigned char c);
 
 int alarm_flag = 0;
+static int rcv_paket_nr = 0;
 
 void alarm_handler()
 {

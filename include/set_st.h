@@ -36,9 +36,6 @@ typedef struct set_transition
   enum set_state_codes dst_state;
 } SET_ST_TRANS;
 
-static int tx_ready_to_send = 0;
-static int rx_RR = 0;
-
 int set_entry_state(unsigned char c);
 
 int set_flag_state(unsigned char c);

@@ -1,8 +1,7 @@
 #ifndef _FRAME_DEFINES_H_
 #define _FRAME_DEFINES_H_
 
-
-// State Machine 
+// State Machine
 
 #define EXIT_SET_STATE stop
 #define ENTRY_SET_STATE start
@@ -61,5 +60,13 @@
 #define TYPE_FILESIZE 0x00
 #define TYPE_FILENAME 0x01
 #define MAXSIZE_FILE_NAME 127
+
+// Debug
+
+#ifdef DEBUG
+#define DEBUG_PRINT(fmt, args...) fprintf(stderr, "DEBUG: %s:%d:%s(): " fmt, __FILE__, __LINE__, __func__, ##args)
+#else
+#define DEBUG_PRINT(fmt, args...) /* Don't do anything in release builds */
+#endif
 
 #endif // _FRAME_DEFINES_H_
