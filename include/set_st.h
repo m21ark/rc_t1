@@ -5,6 +5,12 @@
 #include "macros.h"
 #include "utils.h"
 
+// =========== STATE MACHINE =============
+
+#define EXIT_SET_STATE stop
+#define ENTRY_SET_STATE start
+#define BUF_SIZE 5000
+
 // Based on https://stackoverflow.com/questions/1371460/state-machines-tutorials
 
 enum set_state_codes

@@ -1,10 +1,11 @@
-#ifndef _APP_LAYER_H_
-#define _APP_LAYER_H_
+#ifndef _APP_LAYER_UTILS_H_
+#define _APP_LAYER_UTILS_H_
 
 #include "macros.h"
 #include "set_st.h"
 #include "message.h"
 #include "link_layer.h"
+#include "application_layer_defines.h"
 
 void al_close_rx();
 

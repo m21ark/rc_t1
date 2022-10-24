@@ -14,6 +14,7 @@
 
 #include "message.h"
 #include "macros.h"
+#include "link_layer_defines.h"
 #include "set_st.h"
 
 /**

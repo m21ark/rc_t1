@@ -12,6 +12,8 @@
         "application_layer.h": "c",
         "string.h": "c",
         "macros.h": "c",
-        "applayer.h": "c"
+        "applayer.h": "c",
+        "aplication_layer_defines.h": "c",
+        "app_layer_utils.h": "c"
     }
 }

@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include "macros.h"
+#include "link_layer.h"
 
 /**
  * @brief Counts how many flags in given data need an escape byte before them

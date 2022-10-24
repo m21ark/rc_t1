@@ -10,10 +10,16 @@
 #include "macros.h"
 #include "utils.h"
 
+// =========== ALARM =============
+
+#define TURN_OFF_ALARM alarm(0);
+#define SET_ALARM_TIME(x) alarm(x);
+
+#define MAX_IDLE_TIME 12
 
 /**
  * @brief Send a message to the given file descriptor and waits for confirmation response
- * 
+ *
  * @param fd where to write message
  * @param msg message to be written
  * @param messageSize size of message to be written
@@ -22,19 +28,19 @@
 int sendAndWaitMessage(int fd, unsigned char *msg, int messageSize);
 
 /**
- * @brief 
- * 
- * @param fd 
- * @param data 
- * @param dataSize 
- * @param packet 
+ * @brief
+ *
+ * @param fd
+ * @param data
+ * @param dataSize
+ * @param packet
  * @return int TODO
  */
 int sendInformationFrame(int fd, const unsigned char *data, int dataSize, int packet);
 
 /**
  * @brief Reads message from given file descriptor
- * 
+ *
  * @param fd file descriptor to be used
  * @return int TODO
  */
@@ -42,20 +48,18 @@ int readMessageWithResponse(int fd);
 
 /**
  * @brief Set the reciever packet number object
- * 
+ *
  * @param rcv_paket  value to be set
  */
 void set_rcv_packet_nr(int rcv_paket);
 
 /**
  * @brief Handler for alarm calling that raises an alarm flag
- * 
+ *
  */
 void alarm_handler();
 
-
 void set_nr_retransmissions(int nr_retransmissions);
 void set_nr_timeout(int timeout);
-
 
 #endif // _RCOM_MESSAGE_H_

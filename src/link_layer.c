@@ -2,7 +2,6 @@
 
 extern int (*set_state[])(unsigned char c);
 
-
 int get_baud(int baud);
 
 int llopen(LinkLayer connectionParameters)
@@ -187,10 +186,10 @@ int llclose(int showStatistics)
     return 0;
 }
 
-
 int get_baud(int baud)
 {
-    switch (baud) {
+    switch (baud)
+    {
     case 9600:
         return B9600;
     case 19200:
@@ -223,7 +222,7 @@ int get_baud(int baud)
         return B2500000;
     case 3000000:
         return B3000000;
-    default: 
+    default:
         return B0;
     }
 }
