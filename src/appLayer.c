@@ -239,13 +239,12 @@ int rcvFile(const char *filename)
     printf("Starting to write to file...\n");
     int packet_size, num_bytes_rcv = 0, seqNum = 0;
     float percentageLevel;
-    while (1)
+    while (1) // TODO: ALTERAR
     {
         packet_size = llread(message_rcv);
 
         if (packet_size <= 0)
         {
-            printf("Sent a REJ | packet_size= %d\n", packet_size);
             continue;
         }
 

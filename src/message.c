@@ -35,6 +35,22 @@ int sendAndWaitMessage(int fd, unsigned char *msg, int messageSize)
         printf("\nAttempt to send messsage nº%d\n", ++numTries);
         SET_ALARM_TIME(timeout)
 
+        if (ret < messageSize) {
+            printf("\n LET ME BE FREE TO FINISH THIS PHRASE PLEASE\n");
+            int restToWrite = messageSize - ret;
+            
+            do {
+                int rt = write(fd, msg + ret, restToWrite);
+                ret += rt;
+                if (rt == restToWrite)
+                {
+                    break;
+                }
+                restToWrite -= rt;
+            } while (!alarm_flag );
+
+        }
+
         unsigned char buf = 0;
         unsigned char bytes;
 
@@ -130,7 +146,7 @@ int readMessageWithResponse(int fd)
         bytes = read(fd, &buf, 1);
         if (bytes == 0)
         {
-            DEBUG_PRINT("Nothing was read\n");
+            // DEBUG_PRINT("Nothing was read\n");
             continue;
         }
 
@@ -169,13 +185,11 @@ int readMessageWithResponse(int fd)
             {
                 if (get_control() != CTRL_S(rcv_paket_nr))
                 {
-                    DEBUG_PRINT("OH BLODY HELL \n");
                     unsigned char cmd[5] = {FLAG, ADDR_ER, RR(rcv_paket_nr), BCC(ADDR_ER, RR(rcv_paket_nr)), FLAG};
                     write(fd, cmd, 5);
 
                     continue;
                 }
-                DEBUG_PRINT("okay, lets go\n");
                 return get_data_size();
             }
             else if (get_control() == DISC)
