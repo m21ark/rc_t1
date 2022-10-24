@@ -3,7 +3,7 @@
 
 // =========== SERIAL PORT =============
 
-#define BAUDRATE B38400
+#define BAUDRATE 38400 // NOTA: AQUI não é suposto meter o B ... a conversão é feita noutro lado
 #define _POSIX_SOURCE 1 // POSIX compliant source
 
 // =========== MAIN =============

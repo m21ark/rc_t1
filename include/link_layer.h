@@ -42,6 +42,8 @@ typedef struct
 struct termios oldtio; // struct to store old serial port settings to allow settings reverting at llclose
 int fd;                // global file descriptor used by the serial port
 
+LinkLayer connectionParameters_cpy;
+
 /**
  * @brief Open a connection using the "port" parameters defined in struct linkLayer.
  *
