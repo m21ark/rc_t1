@@ -10,6 +10,7 @@
 #include "macros.h"
 #include "utils.h"
 
+
 /**
  * @brief Send a message to the given file descriptor and waits for confirmation response
  * 
@@ -51,5 +52,10 @@ void set_rcv_packet_nr(int rcv_paket);
  * 
  */
 void alarm_handler();
+
+
+void set_nr_retransmissions(int nr_retransmissions);
+void set_nr_timeout(int timeout);
+
 
 #endif // _RCOM_MESSAGE_H_

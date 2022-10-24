@@ -6,6 +6,10 @@ static int (*set_state_fun)(unsigned char c);
 int alarm_flag = 0;
 static int rcv_paket_nr = 0;
 
+static int nRtr;
+static int timeout;
+
+
 void alarm_handler()
 {
     alarm_flag = 1;
@@ -29,7 +33,7 @@ int sendAndWaitMessage(int fd, unsigned char *msg, int messageSize)
 
         ret = write(fd, msg, messageSize);
         printf("\nAttempt to send messsage nº%d\n", ++numTries);
-        SET_ALARM_TIME(REATTEMPT_WAIT_TIME)
+        SET_ALARM_TIME(timeout)
 
         unsigned char buf = 0;
         unsigned char bytes;
@@ -57,7 +61,7 @@ int sendAndWaitMessage(int fd, unsigned char *msg, int messageSize)
             }
         }
 
-    } while (numTries < 3 && get_set_state() != EXIT_SET_STATE);
+    } while (numTries < nRtr && get_set_state() != EXIT_SET_STATE);
 
     TURN_OFF_ALARM
 
@@ -191,4 +195,14 @@ int readMessageWithResponse(int fd)
     DEBUG_PRINT("Returning -1\n");
     TURN_OFF_ALARM
     return -1;
+}
+
+
+void set_nr_retransmissions(int nr_retransmissions_r)
+{
+    nRtr = nr_retransmissions_r;
+}
+void set_nr_timeout(int timeout_r) 
+{
+    timeout = timeout_r;
 }

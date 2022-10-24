@@ -65,7 +65,6 @@
 #define SET_ALARM_TIME(x) alarm(x);
 
 #define MAX_IDLE_TIME 12
-#define REATTEMPT_WAIT_TIME 3
 
 // =========== DEBUG =============
 

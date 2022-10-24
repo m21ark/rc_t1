@@ -15,6 +15,9 @@ int llopen(LinkLayer connectionParameters)
 
     connectionParameters_cpy = connectionParameters;
 
+    set_nr_retransmissions(connectionParameters_cpy.nRetransmissions);
+    set_nr_timeout(connectionParameters_cpy.timeout);
+
     if (fd < 0)
     {
         perror(connectionParameters.serialPort);
@@ -102,7 +105,7 @@ int llwrite(const unsigned char *buf, int bufSize)
             break;
         }
 
-    } while (numTries < 3);
+    } while (numTries < connectionParameters_cpy.nRetransmissions);
 
     DEBUG_PRINT("llwrite returned -1\n");
     return -1;
