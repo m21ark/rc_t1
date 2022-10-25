@@ -204,7 +204,6 @@ int readMessageWithResponse(int fd)
                     return -1;
                 }
             }
-            printf("SOMETHING UNEXPECTED OCCURRED\n");
             return 0;
         }
     }
