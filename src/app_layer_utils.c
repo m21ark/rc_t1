@@ -243,9 +243,13 @@ int rcvFile(const char *filename)
     {
         packet_size = llread(message_rcv);
 
-        if (packet_size <= 0)
+        if (packet_size == 0)
         {
             continue;
+        }
+        else if (packet_size < 0) // It was not possible to read anything
+        {
+            return -1;
         }
 
         if (message_rcv[0] == CTRL_END)

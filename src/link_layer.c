@@ -127,16 +127,16 @@ int llread(unsigned char *packet)
         DEBUG_PRINT("Returning data from packet\n");
         return get_data(packet);
     }
-    else if (r < 0)
+    else if (r < 0) // Not the right packet, send REJ
     {
         unsigned char cmd[5] = {FLAG, ADDR_ER, REJ(r_packet), BCC(ADDR_ER, REJ(r_packet)), FLAG};
         write(fd, cmd, 5);
         DEBUG_PRINT("REJ was sent\n");
-        return -1;
+        return 0;
     }
 
     DEBUG_PRINT("LL read return 0\n");
-    return 0;
+    return -1;
 }
 
 int llclose(int showStatistics)

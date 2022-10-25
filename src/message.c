@@ -148,7 +148,7 @@ int readMessageWithResponse(int fd)
         bytes = read(fd, &buf, 1);
         if (bytes == 0)
         {
-            // DEBUG_PRINT("Nothing was read\n");
+            printf("Nothing was read\n");
             continue;
         }
 
@@ -186,7 +186,7 @@ int readMessageWithResponse(int fd)
             else if (get_control() == CTRL_S(0) || get_control() == CTRL_S(1))
             {
                 if (get_control() != CTRL_S(rcv_paket_nr))
-                {
+                { // sends receiver ready when packet is the same as the previous packet recieved
                     unsigned char cmd[5] = {FLAG, ADDR_ER, RR(rcv_paket_nr), BCC(ADDR_ER, RR(rcv_paket_nr)), FLAG};
                     write(fd, cmd, 5);
 
@@ -204,13 +204,14 @@ int readMessageWithResponse(int fd)
                     return -1;
                 }
             }
+            printf("SOMETHING UNEXPECTED OCCURRED\n");
             return 0;
         }
     }
 
     DEBUG_PRINT("Returning -1\n");
     TURN_OFF_ALARM
-    return -1;
+    return 0;
 }
 
 void set_nr_retransmissions(int nr_retransmissions_r)
