@@ -38,7 +38,7 @@ int sendAndWaitMessage(int fd, unsigned char *msg, int messageSize)
         {
             // IMPORTANTE: acaba de escrever caso não tenha sido possível acabar.
             // Tal pode acontecer,px. , devido a limites físicos do buffer da serial port
-            printf("\n LET ME BE FREE TO FINISH THIS PHRASE PLEASE\n");
+            // printf("\n LET ME BE FREE TO FINISH THIS PHRASE PLEASE\n");
             int restToWrite = messageSize - ret;
 
             do
@@ -148,7 +148,7 @@ int readMessageWithResponse(int fd)
         bytes = read(fd, &buf, 1);
         if (bytes == 0)
         {
-            printf("Nothing was read\n");
+            DEBUG_PRINT("Nothing was read\n");
             continue;
         }
 

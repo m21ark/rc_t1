@@ -1,11 +1,15 @@
 #include "link_layer.h"
-
+#include "time.h"
 extern int (*set_state[])(unsigned char c);
+#define BILLION  1000000000.0
+struct timespec begin;
+
 
 int get_baud(int baud);
 
 int llopen(LinkLayer connectionParameters)
 {
+    clock_gettime(CLOCK_REALTIME, &begin);
     signal(SIGALRM, alarm_handler);
 
     // Open serial port device for reading and writing, and not as controlling tty
@@ -141,8 +145,6 @@ int llread(unsigned char *packet)
 
 int llclose(int showStatistics)
 {
-    UNUSED(showStatistics); // TODO -> Fazer a analise dos dados
-
     // Transmitter closing
     if (connectionParameters_cpy.role == LlTx)
     {
@@ -172,6 +174,18 @@ int llclose(int showStatistics)
             DEBUG_PRINT("Rx llclose read message failed\n");
             return -1;
         }
+    }
+
+    if (showStatistics)
+    {
+        struct timespec end;
+        clock_gettime(CLOCK_REALTIME, &end); 
+
+        double time_spent = (end.tv_sec - begin.tv_sec) +
+                        (end.tv_nsec - begin.tv_nsec) / BILLION;
+
+        printf("TIME TO FINISH: %f\n", time_spent);
+
     }
 
     // Recover old serial port settings
